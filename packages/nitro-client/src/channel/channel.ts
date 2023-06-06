@@ -122,8 +122,20 @@ export class Channel extends FixedPart {
 
   // Clone returns a pointer to a new, deep copy of the receiver, or a nil pointer if the receiver is nil.
   clone(): Channel {
-    // TODO: Implement
-    return {} as Channel;
+    // if (this == null) {
+    //   return null;
+    // }
+
+    const d = Channel.new(this.preFundState().clone(), this.myIndex);
+    d.latestSupportedStateTurnNum = this.latestSupportedStateTurnNum;
+
+    this.signedStateForTurnNum?.forEach((value, key) => {
+      d.signedStateForTurnNum?.set(key, value);
+    });
+    d.onChainFunding = this.onChainFunding.clone();
+    Object.assign(d, super.clone());
+
+    return d;
   }
 
   // PreFundState() returns the pre fund setup state for the channel.
