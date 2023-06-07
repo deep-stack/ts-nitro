@@ -144,9 +144,8 @@ export class Channel extends FixedPart {
   }
 
   // SignedPreFundState returns the signed pre fund setup state for the channel.
-  // TODO: Implement
-  signedPreFundState(): State {
-    return {} as State;
+  signedPreFundState(): SignedState {
+    return this.signedStateForTurnNum?.get(PreFundTurnNum)!;
   }
 
   // PostFundState() returns the post fund setup state for the channel.
@@ -240,18 +239,21 @@ export class Channel extends FixedPart {
   }
 
   // Total() returns the total allocated of each asset allocated by the pre fund setup state of the Channel.
-  // TODO: Implement
   total(): Funds {
-    return new Funds();
+    return this.preFundState().outcome.totalAllocated();
   }
 
   // Affords returns true if, for each asset keying the input variables, the channel can afford the allocation given the funding.
   // The decision is made based on the latest supported state of the channel.
   //
   // Both arguments are maps keyed by the same asset
-  // TODO: Implement
   affords(allocationMap: Map<Address, Allocation>, fundingMap: Funds): boolean {
-    return false;
+    try {
+      const lss = this.latestSupportedState();
+      return lss.outcome.affords(allocationMap, fundingMap);
+    } catch (err) {
+      return false;
+    }
   }
 
   // AddStateWithSignature constructs a SignedState from the passed state and signature, and calls s.AddSignedState with it.
