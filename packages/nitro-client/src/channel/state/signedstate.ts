@@ -89,10 +89,9 @@ export class SignedState {
   }
 
   // HasSignatureForParticipant returns true if the participant (at participantIndex) has a valid signature.
-  // TODO: unit replacement
-  // TODO: Implement
   hasSignatureForParticipant(participantIndex: number): boolean {
-    return false;
+    const found = this.sigs!.has(participantIndex);
+    return found;
   }
 
   // HasAllSignatures returns true if every participant has a valid signature.
@@ -105,16 +104,19 @@ export class SignedState {
   }
 
   // GetParticipantSignature returns the signature for the participant specified by participantIndex
-  // TODO: Can throw an error
-  // TODO: Implement
   getParticipantSignature(participantIndex: number): Signature {
-    return zeroValueSignature;
+    const found = this.sigs!.has(participantIndex);
+    if (!found) {
+      throw new Error(`participant ${participantIndex} does not have a signature `);
+    } else {
+      return this.sigs?.get(participantIndex)!;
+    }
   }
 
   // Merge checks the passed SignedState's state and the receiver's state for equality, and adds each signature from the former to the latter.
   // TODO: Can throw an error
   // TODO: Implement
-  merge(ss2: SignedState): void {}
+  merge(ss2: SignedState): void { }
 
   // Clone returns a deep copy of the receiver.
   // TODO: Implement
@@ -132,7 +134,7 @@ export class SignedState {
   // UnmarshalJSON unmarshals the passed JSON into a SignedState, implementing the Unmarshaler interface.
   // TODO: Can throw an error
   // TODO: Implement
-  unmarshalJSON(j: Buffer): void {}
+  unmarshalJSON(j: Buffer): void { }
 
   // ChannelId returns the channel id of the state.
   // TODO: Implement
