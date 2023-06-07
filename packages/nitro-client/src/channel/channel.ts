@@ -163,8 +163,12 @@ export class Channel extends FixedPart {
   }
 
   // PreFundSignedByMe returns true if the calling client has signed the pre fund setup state, false otherwise.
-  // TODO: Implement
   preFundSignedByMe(): boolean {
+    if (this.signedStateForTurnNum?.has(PreFundTurnNum)) {
+      if (this.signedStateForTurnNum?.get(PreFundTurnNum)!.hasSignatureForParticipant(this.myIndex)) {
+        return true;
+      }
+    }
     return false;
   }
 
