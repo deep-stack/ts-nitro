@@ -173,8 +173,12 @@ export class Channel extends FixedPart {
   }
 
   // PostFundSignedByMe returns true if the calling client has signed the post fund setup state, false otherwise.
-  // TODO: Implement
   postFundSignedByMe(): boolean {
+    if (this.signedStateForTurnNum?.has(PostFundTurnNum)) {
+      if (this.signedStateForTurnNum?.get(PostFundTurnNum)!.hasSignatureForParticipant(this.myIndex)) {
+        return true;
+      }
+    }
     return false;
   }
 
