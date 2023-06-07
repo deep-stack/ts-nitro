@@ -206,17 +206,18 @@ export class Channel extends FixedPart {
   }
 
   // HasSupportedState returns true if the channel has a supported state, false otherwise.
-  // TODO: Implement
   hasSupportedState(): boolean {
-    return false;
+    return this.latestSupportedStateTurnNum !== MaxTurnNum;
   }
 
   // LatestSupportedState returns the latest supported state. A state is supported if it is signed
   // by all participants.
-  // TODO: Can throw an error
   latestSupportedState(): State {
-    // TODO: Implement
-    return {} as State;
+    if (this.latestSupportedStateTurnNum === MaxTurnNum) {
+      throw new Error('no state is yet supported');
+    }
+
+    return this.signedStateForTurnNum!.get(this.latestSupportedStateTurnNum)!.state();
   }
 
   // LatestSignedState fetches the state with the largest turn number signed by at least one participant.
