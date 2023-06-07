@@ -156,9 +156,8 @@ export class Channel extends FixedPart {
   }
 
   // SignedPostFundState() returns the SIGNED post fund setup state for the channel.
-  // TODO: Implement
   signedPostFundState(): SignedState {
-    return {} as SignedState;
+    return this.signedStateForTurnNum?.get(PostFundTurnNum)!;
   }
 
   // PreFundSignedByMe returns true if the calling client has signed the pre fund setup state, false otherwise.
@@ -187,9 +186,8 @@ export class Channel extends FixedPart {
   }
 
   // PostFundComplete() returns true if I have a complete set of signatures on  the pre fund setup state, false otherwise.
-  // TODO: Implement
   postFundComplete(): boolean {
-    return false;
+    return this.signedStateForTurnNum!.get(PostFundTurnNum)!.hasAllSignatures();
   }
 
   // FinalSignedByMe returns true if the calling client has signed a final state, false otherwise.
@@ -204,9 +202,12 @@ export class Channel extends FixedPart {
   }
 
   // FinalCompleted returns true if I have a complete set of signatures on a final state, false otherwise.
-  // TODO: Implement
   finalCompleted(): boolean {
-    return false;
+    if (this.latestSupportedStateTurnNum === MaxTurnNum) {
+      return false;
+    }
+
+    return this.signedStateForTurnNum!.get(this.latestSupportedStateTurnNum)!.state().isFinal;
   }
 
   // HasSupportedState returns true if the channel has a supported state, false otherwise.
