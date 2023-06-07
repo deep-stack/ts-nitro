@@ -302,10 +302,8 @@ export class Channel extends FixedPart {
   }
 
   // SignAndAddPrefund signs and adds the postfund state for the channel, returning a state.SignedState suitable for sending to peers.
-  // TODO: Can throw an error
-  // TODO: Implement
   signAndAddPostfund(sk: Buffer): SignedState {
-    return {} as SignedState;
+    return this.signAndAddState(this.postFundState(), sk);
   }
 
   // SignAndAddState signs and adds the state to the channel, returning a state.SignedState suitable for sending to peers.
