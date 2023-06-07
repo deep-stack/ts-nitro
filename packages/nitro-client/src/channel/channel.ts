@@ -179,9 +179,8 @@ export class Channel extends FixedPart {
   }
 
   // PreFundComplete() returns true if I have a complete set of signatures on  the pre fund setup state, false otherwise.
-  // TODO: Implement
   preFundComplete(): boolean {
-    return false;
+    return this.signedStateForTurnNum!.get(PreFundTurnNum)!.hasAllSignatures();
   }
 
   // PostFundComplete() returns true if I have a complete set of signatures on  the pre fund setup state, false otherwise.
