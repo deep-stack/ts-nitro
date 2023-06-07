@@ -306,9 +306,26 @@ export class Channel extends FixedPart {
   }
 
   // SignAndAddState signs and adds the state to the channel, returning a state.SignedState suitable for sending to peers.
-  // TODO: Can throw an error
-  // TODO: Implement
   signAndAddState(s: State, sk: Buffer): SignedState {
-    return {} as SignedState;
+    let sig: Signature;
+    try {
+      sig = s.sign(sk);
+    } catch (err) {
+      throw new Error(`Could not sign prefund ${err}`);
+    }
+
+    const ss = SignedState.newSignedState(s);
+    try {
+      ss.addSignature(sig);
+    } catch (err) {
+      throw new Error(`could not add own signature ${err}`);
+    }
+
+    const ok = this.addSignedState(ss);
+    if (!ok) {
+      throw new Error('could not add signed state to channel');
+    }
+
+    return ss;
   }
 }
