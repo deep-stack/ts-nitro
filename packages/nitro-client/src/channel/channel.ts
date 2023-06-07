@@ -139,9 +139,8 @@ export class Channel extends FixedPart {
   }
 
   // PreFundState() returns the pre fund setup state for the channel.
-  // TODO: Implement
   preFundState(): State {
-    return {} as State;
+    return this.signedStateForTurnNum!.get(PreFundTurnNum)!.state();
   }
 
   // SignedPreFundState returns the signed pre fund setup state for the channel.
@@ -194,8 +193,13 @@ export class Channel extends FixedPart {
   }
 
   // FinalSignedByMe returns true if the calling client has signed a final state, false otherwise.
-  // TODO: Implement
   finalSignedByMe(): boolean {
+    for (const [, ss] of this.signedStateForTurnNum!) {
+      if (ss.hasSignatureForParticipant(this.myIndex) && ss.state().isFinal) {
+        return true;
+      }
+    }
+
     return false;
   }
 
