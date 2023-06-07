@@ -122,10 +122,6 @@ export class Channel extends FixedPart {
 
   // Clone returns a pointer to a new, deep copy of the receiver, or a nil pointer if the receiver is nil.
   clone(): Channel {
-    // if (this == null) {
-    //   return null;
-    // }
-
     const d = Channel.new(this.preFundState().clone(), this.myIndex);
     d.latestSupportedStateTurnNum = this.latestSupportedStateTurnNum;
 
@@ -226,10 +222,10 @@ export class Channel extends FixedPart {
 
   // LatestSignedState fetches the state with the largest turn number signed by at least one participant.
   latestSignedState(): SignedState {
-    if (this.signedStateForTurnNum.size === 0) {
+    if (this.signedStateForTurnNum?.size === 0) {
       throw new Error('no states are signed');
     }
-    let latestTurn = 0;
+    let latestTurn: number = 0;
     for (const [k] of this.signedStateForTurnNum) {
       if (k > latestTurn) {
         latestTurn = k;
@@ -257,9 +253,14 @@ export class Channel extends FixedPart {
   }
 
   // AddStateWithSignature constructs a SignedState from the passed state and signature, and calls s.AddSignedState with it.
-  // TODO: Implement
   addStateWithSignature(s: State, sig: Signature): boolean {
-    return false;
+    const ss = SignedState.newSignedState(s);
+    try {
+      ss.addSignature(sig);
+    } catch (err) {
+      return false;
+    }
+    return this.addSignedState(ss);
   }
 
   // AddSignedState adds a signed state to the Channel, updating the LatestSupportedState and Support if appropriate.
@@ -303,10 +304,8 @@ export class Channel extends FixedPart {
   }
 
   // SignAndAddPrefund signs and adds the prefund state for the channel, returning a state.SignedState suitable for sending to peers.
-  // TODO: Can throw an error
-  // TODO: Implement
   signAndAddPrefund(sk: Buffer): SignedState {
-    return {} as SignedState;
+    return this.signAndAddState(this.preFundState(), sk);
   }
 
   // SignAndAddPrefund signs and adds the postfund state for the channel, returning a state.SignedState suitable for sending to peers.
