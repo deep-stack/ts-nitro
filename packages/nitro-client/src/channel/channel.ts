@@ -125,8 +125,8 @@ export class Channel extends FixedPart {
     const d = Channel.new(this.preFundState().clone(), this.myIndex);
     d.latestSupportedStateTurnNum = this.latestSupportedStateTurnNum;
 
-    this.signedStateForTurnNum?.forEach((value, key) => {
-      d.signedStateForTurnNum?.set(key, value);
+    this.signedStateForTurnNum.forEach((value, key) => {
+      d.signedStateForTurnNum.set(key, value);
     });
     d.onChainFunding = this.onChainFunding.clone();
     Object.assign(d, super.clone());
@@ -136,12 +136,12 @@ export class Channel extends FixedPart {
 
   // PreFundState() returns the pre fund setup state for the channel.
   preFundState(): State {
-    return this.signedStateForTurnNum!.get(PreFundTurnNum)!.state();
+    return this.signedStateForTurnNum.get(PreFundTurnNum)!.state();
   }
 
   // SignedPreFundState returns the signed pre fund setup state for the channel.
   signedPreFundState(): SignedState {
-    return this.signedStateForTurnNum?.get(PreFundTurnNum)!;
+    return this.signedStateForTurnNum.get(PreFundTurnNum)!;
   }
 
   // PostFundState() returns the post fund setup state for the channel.
@@ -152,13 +152,13 @@ export class Channel extends FixedPart {
 
   // SignedPostFundState() returns the SIGNED post fund setup state for the channel.
   signedPostFundState(): SignedState {
-    return this.signedStateForTurnNum?.get(PostFundTurnNum)!;
+    return this.signedStateForTurnNum.get(PostFundTurnNum)!;
   }
 
   // PreFundSignedByMe returns true if the calling client has signed the pre fund setup state, false otherwise.
   preFundSignedByMe(): boolean {
-    if (this.signedStateForTurnNum?.has(PreFundTurnNum)) {
-      if (this.signedStateForTurnNum?.get(PreFundTurnNum)!.hasSignatureForParticipant(this.myIndex)) {
+    if (this.signedStateForTurnNum.has(PreFundTurnNum)) {
+      if (this.signedStateForTurnNum.get(PreFundTurnNum)!.hasSignatureForParticipant(this.myIndex)) {
         return true;
       }
     }
@@ -167,8 +167,8 @@ export class Channel extends FixedPart {
 
   // PostFundSignedByMe returns true if the calling client has signed the post fund setup state, false otherwise.
   postFundSignedByMe(): boolean {
-    if (this.signedStateForTurnNum?.has(PostFundTurnNum)) {
-      if (this.signedStateForTurnNum?.get(PostFundTurnNum)!.hasSignatureForParticipant(this.myIndex)) {
+    if (this.signedStateForTurnNum.has(PostFundTurnNum)) {
+      if (this.signedStateForTurnNum.get(PostFundTurnNum)!.hasSignatureForParticipant(this.myIndex)) {
         return true;
       }
     }
@@ -177,17 +177,17 @@ export class Channel extends FixedPart {
 
   // PreFundComplete() returns true if I have a complete set of signatures on  the pre fund setup state, false otherwise.
   preFundComplete(): boolean {
-    return this.signedStateForTurnNum!.get(PreFundTurnNum)!.hasAllSignatures();
+    return this.signedStateForTurnNum.get(PreFundTurnNum)!.hasAllSignatures();
   }
 
   // PostFundComplete() returns true if I have a complete set of signatures on  the pre fund setup state, false otherwise.
   postFundComplete(): boolean {
-    return this.signedStateForTurnNum!.get(PostFundTurnNum)!.hasAllSignatures();
+    return this.signedStateForTurnNum.get(PostFundTurnNum)!.hasAllSignatures();
   }
 
   // FinalSignedByMe returns true if the calling client has signed a final state, false otherwise.
   finalSignedByMe(): boolean {
-    for (const [, ss] of this.signedStateForTurnNum!) {
+    for (const [, ss] of this.signedStateForTurnNum) {
       if (ss.hasSignatureForParticipant(this.myIndex) && ss.state().isFinal) {
         return true;
       }
@@ -202,7 +202,7 @@ export class Channel extends FixedPart {
       return false;
     }
 
-    return this.signedStateForTurnNum!.get(this.latestSupportedStateTurnNum)!.state().isFinal;
+    return this.signedStateForTurnNum.get(this.latestSupportedStateTurnNum)!.state().isFinal;
   }
 
   // HasSupportedState returns true if the channel has a supported state, false otherwise.
@@ -217,12 +217,12 @@ export class Channel extends FixedPart {
       throw new Error('no state is yet supported');
     }
 
-    return this.signedStateForTurnNum!.get(this.latestSupportedStateTurnNum)!.state();
+    return this.signedStateForTurnNum.get(this.latestSupportedStateTurnNum)!.state();
   }
 
   // LatestSignedState fetches the state with the largest turn number signed by at least one participant.
   latestSignedState(): SignedState {
-    if (this.signedStateForTurnNum?.size === 0) {
+    if (this.signedStateForTurnNum.size === 0) {
       throw new Error('no states are signed');
     }
     let latestTurn: number = 0;
