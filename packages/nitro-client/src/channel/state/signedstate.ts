@@ -105,7 +105,7 @@ export class SignedState {
   getParticipantSignature(participantIndex: number): Signature {
     const found = this.sigs.has(participantIndex);
     if (!found) {
-      throw new Error(`participant ${participantIndex} does not have a signature `);
+      throw new Error(`participant ${participantIndex} does not have a signature`);
     } else {
       return this.sigs.get(participantIndex)!;
     }
