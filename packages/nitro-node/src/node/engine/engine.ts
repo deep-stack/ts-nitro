@@ -12,7 +12,7 @@ import { JSONbigNative, go } from '@cerc-io/nitro-util';
 
 import { MessageService } from './messageservice/messageservice';
 import { ChainService, ChainEvent, ChainEventHandler } from './chainservice/chainservice';
-import { ErrNoSuchObjective, Store } from './store/store';
+import { ErrNoSuchObjective, Store, ErrLoadVouchers } from './store/store';
 import { PolicyMaker } from './policy-maker';
 import { MetricsApi, MetricsRecorder, NoOpMetrics } from './metrics';
 import { VoucherManager } from '../../payments/voucher-manager';
@@ -28,6 +28,7 @@ import {
   ObjectiveRequest as DirectFundObjectiveRequest,
   Objective as DirectFundObjective,
   isDirectFundObjective,
+  ErrLedgerChannelExists,
 } from '../../protocols/directfund/directfund';
 import {
   ObjectiveRequest as DirectDefundObjectiveRequest,
@@ -101,6 +102,16 @@ export class EngineEvent {
   // PaymentChannelUpdates contains channel info for payment channels that have been updated
   paymentChannelUpdates: PaymentChannelInfo[] = [];
 
+  constructor(params: {
+    failedObjectives?: ObjectiveId[];
+    completedObjectives?: Objective[];
+    receivedVouchers?: Voucher[];
+    ledgerChannelUpdates?: LedgerChannelInfo[];
+    paymentChannelUpdates?: PaymentChannelInfo[]
+  }) {
+    Object.assign(this, params);
+  }
+
   // IsEmpty returns true if the EngineEvent contains no changes
   isEmpty(): boolean {
     return (
@@ -135,8 +146,14 @@ class ErrGetObjective {
   }
 }
 
+type NonFatalErrorType = ErrGetObjective | Error;
+
 // nonFatalErrors is a list of errors for which the engine should not panic
-const nonFatalErrors: ErrGetObjective[] = [];
+const nonFatalErrors: NonFatalErrorType[] = [
+  new ErrGetObjective({}),
+  ErrLoadVouchers,
+  ErrLedgerChannelExists,
+];
 
 // Engine is the imperative part of the core business logic of a go-nitro Node
 export class Engine {
@@ -271,7 +288,7 @@ export class Engine {
     });
 
     while (true) {
-      let res = new EngineEvent();
+      let res = new EngineEvent({});
       let err: Error | null = null;
 
       this.metrics!.recordQueueLength('api_objective_request_queue', this.objectiveRequestsFromAPI.channelLength());
@@ -350,12 +367,12 @@ export class Engine {
       try {
         obj = await this.store.getObjectiveById(id);
       } catch (err) {
-        return [new EngineEvent(), err as Error];
+        return [new EngineEvent({}), err as Error];
       }
 
       if (obj.getStatus() === ObjectiveStatus.Completed) {
         this.logger(`Ignoring proposal for complected objective ${obj.id()}`);
-        return [new EngineEvent(), null];
+        return [new EngineEvent({}), null];
       }
 
       return await this.attemptProgress(obj);
@@ -383,14 +400,14 @@ export class Engine {
       assert(this.vm);
 
       this.logMessage(message, Incoming);
-      const allCompleted = new EngineEvent();
+      const allCompleted = new EngineEvent({});
 
       for await (const payload of (message.objectivePayloads ?? [])) {
         let objective: Objective;
         try {
           objective = await this.getOrCreateObjective(payload);
         } catch (err) {
-          return [new EngineEvent(), err as Error];
+          return [new EngineEvent({}), err as Error];
         }
 
         if (objective.getStatus() === ObjectiveStatus.Unapproved) {
@@ -405,7 +422,7 @@ export class Engine {
               try {
                 await this.store.destroyConsensusChannel(objective.c!.id);
               } catch (err) {
-                return [new EngineEvent(), err as Error];
+                return [new EngineEvent({}), err as Error];
               }
             }
           } else {
@@ -415,7 +432,7 @@ export class Engine {
             try {
               await this.store.setObjective(objective);
             } catch (err) {
-              return [new EngineEvent(), err as Error];
+              return [new EngineEvent({}), err as Error];
             }
 
             allCompleted.completedObjectives.push(objective);
@@ -444,13 +461,13 @@ export class Engine {
         try {
           updatedObjective = objective.update(payload);
         } catch (err) {
-          return [new EngineEvent(), err as Error];
+          return [new EngineEvent({}), err as Error];
         }
 
         const [progressEvent, err] = await this.attemptProgress(updatedObjective);
 
         if (err) {
-          return [new EngineEvent(), err as Error];
+          return [new EngineEvent({}), err as Error];
         }
 
         allCompleted.merge(progressEvent);
@@ -466,7 +483,7 @@ export class Engine {
         try {
           o = await this.store.getObjectiveById(id);
         } catch (err) {
-          return [new EngineEvent(), err as Error];
+          return [new EngineEvent({}), err as Error];
         }
 
         if (o.getStatus() === ObjectiveStatus.Completed) {
@@ -478,20 +495,20 @@ export class Engine {
         const isProposalReceiver = 'receiveProposal' in o && typeof o.receiveProposal === 'function';
         const objective = o as ProposalReceiver;
         if (!isProposalReceiver) {
-          return [new EngineEvent(), new Error(`received a proposal for an objective which cannot receive proposals ${objective.id()}`)];
+          return [new EngineEvent({}), new Error(`received a proposal for an objective which cannot receive proposals ${objective.id()}`)];
         }
 
         let updatedObjective: Objective;
         try {
           updatedObjective = objective.receiveProposal(entry);
         } catch (err) {
-          return [new EngineEvent(), err as Error];
+          return [new EngineEvent({}), err as Error];
         }
 
         const [progressEvent, err] = await this.attemptProgress(updatedObjective);
 
         if (err) {
-          return [new EngineEvent(), err as Error];
+          return [new EngineEvent({}), err as Error];
         }
 
         allCompleted.merge(progressEvent);
@@ -502,7 +519,7 @@ export class Engine {
         try {
           objective = await this.store.getObjectiveById(entry);
         } catch (err) {
-          return [new EngineEvent(), err as Error];
+          return [new EngineEvent({}), err as Error];
         }
 
         if (objective.getStatus() === ObjectiveStatus.Rejected) {
@@ -517,7 +534,7 @@ export class Engine {
         try {
           await this.store.setObjective(objective);
         } catch (err) {
-          return [new EngineEvent(), err as Error];
+          return [new EngineEvent({}), err as Error];
         }
 
         allCompleted.completedObjectives.push(objective);
@@ -528,14 +545,14 @@ export class Engine {
           // TODO: return the amount we paid?
           await this.vm.receive(voucher);
         } catch (err) {
-          return [new EngineEvent(), new Error(`error accepting payment voucher: ${err}`)];
+          return [new EngineEvent({}), new Error(`error accepting payment voucher: ${err}`)];
         } finally {
           allCompleted.receivedVouchers.push(voucher);
         }
 
         const [c, ok] = await this.store.getChannelById(voucher.channelId);
         if (!ok) {
-          return [new EngineEvent(), new Error(`could not fetch channel for voucher ${voucher}`)];
+          return [new EngineEvent({}), new Error(`could not fetch channel for voucher ${voucher}`)];
         }
 
         // Vouchers only count as payment channel updates if the channel is open.
@@ -545,14 +562,14 @@ export class Engine {
           try {
             [paid, remaining] = await getVoucherBalance(c.id, this.vm);
           } catch (err) {
-            return [new EngineEvent(), err as Error];
+            return [new EngineEvent({}), err as Error];
           }
 
           let info: PaymentChannelInfo;
           try {
             info = constructPaymentInfo(c, paid, remaining);
           } catch (err) {
-            return [new EngineEvent(), err as Error];
+            return [new EngineEvent({}), err as Error];
           }
 
           allCompleted.paymentChannelUpdates.push(info);
@@ -588,7 +605,7 @@ export class Engine {
         // TODO: Right now the chain service returns chain events for ALL channels even those we aren't involved in
         // for now we can ignore channels we aren't involved in
         // in the future the chain service should allow us to register for specific channels
-        return [new EngineEvent(), null];
+        return [new EngineEvent({}), null];
       }
 
       // Workaround for Go type assertion syntax
@@ -596,7 +613,7 @@ export class Engine {
       ok = 'updateWithChainEvent' in objective && typeof objective.updateWithChainEvent === 'function';
       const eventHandler = objective as unknown as ChainEventHandler;
       if (!ok) {
-        return [new EngineEvent(), new ErrUnhandledChainEvent({
+        return [new EngineEvent({}), new ErrUnhandledChainEvent({
           event: chainEvent,
           objective,
           reason: 'objective does not handle chain events',
@@ -607,7 +624,7 @@ export class Engine {
       try {
         updatedEventHandler = eventHandler.updateWithChainEvent(chainEvent);
       } catch (err) {
-        return [new EngineEvent(), err as Error];
+        return [new EngineEvent({}), err as Error];
       }
 
       return await this.attemptProgress(updatedEventHandler);
@@ -637,10 +654,12 @@ export class Engine {
       try {
         chainId = await this.chain.getChainId();
       } catch (err) {
-        return [new EngineEvent(), new Error(`could get chain id from chain service: ${err}`)];
+        return [new EngineEvent({}), new Error(`could not get chain id from chain service: ${err}`)];
       }
 
       const objectiveId = or.id(myAddress, chainId);
+
+      const failedEngineEvent = new EngineEvent({ failedObjectives: [objectiveId] });
       this.logger(`handling new objective request for ${objectiveId}`);
 
       // Need to pass objective id instead of objective request id
@@ -660,7 +679,7 @@ export class Engine {
               this.store.getConsensusChannel.bind(this.store),
             );
           } catch (err) {
-            return [new EngineEvent(), new Error(`handleAPIEvent: Could not create virtualfund objective for ${or}: ${err}`)];
+            return [failedEngineEvent, new Error(`handleAPIEvent: Could not create virtualfund objective for ${or}: ${err}`)];
           }
           this.metrics!.recordObjectiveStarted(vfo.id());
 
@@ -670,7 +689,7 @@ export class Engine {
             try {
               await this.registerPaymentChannel(vfo);
             } catch (err) {
-              return [new EngineEvent(), new Error(`could not register channel with payment/receipt manager: ${err}`)];
+              return [failedEngineEvent, new Error(`could not register channel with payment/receipt manager: ${err}`)];
             }
           }
 
@@ -688,7 +707,7 @@ export class Engine {
               minAmount = paid;
             } catch (err) {
               return [
-                new EngineEvent(),
+                failedEngineEvent,
                 new Error(`handleAPIEvent: Could not create virtualdefund objective for ${JSONbigNative.stringify(request)}: ${err}`),
               ];
             }
@@ -707,7 +726,7 @@ export class Engine {
 
             this.metrics!.recordObjectiveStarted(vdfo.id());
           } catch (err) {
-            return [new EngineEvent(), new Error(`handleAPIEvent: Could not create virtualdefund objective for ${request}: ${err}`)];
+            return [failedEngineEvent, new Error(`handleAPIEvent: Could not create virtualdefund objective for ${request}: ${err}`)];
           }
 
           return await this.attemptProgress(vdfo);
@@ -727,7 +746,7 @@ export class Engine {
 
             this.metrics!.recordObjectiveStarted(dfo.id());
           } catch (err) {
-            return [new EngineEvent(), new Error(`handleAPIEvent: Could not create directfund objective for ${JSONbigNative.stringify(or)}: ${err}`)];
+            return [failedEngineEvent, new Error(`handleAPIEvent: Could not create directfund objective for ${JSONbigNative.stringify(or)}: ${err}`)];
           }
 
           return await this.attemptProgress(dfo);
@@ -744,7 +763,7 @@ export class Engine {
             );
           } catch (err) {
             return [
-              new EngineEvent(),
+              failedEngineEvent,
               new Error(`handleAPIEvent: Could not create directdefund objective for ${JSONbigNative.stringify(request)}: ${err}`),
             ];
           }
@@ -753,14 +772,14 @@ export class Engine {
           try {
             await this.store.destroyConsensusChannel(request.channelId);
           } catch (err) {
-            return [new EngineEvent(), new Error(`handleAPIEvent: Could not destroy consensus channel for ${request}: ${err}`)];
+            return [failedEngineEvent, new Error(`handleAPIEvent: Could not destroy consensus channel for ${request}: ${err}`)];
           }
 
           return await this.attemptProgress(ddfo);
         }
 
         default:
-          return [new EngineEvent(), new Error(`handleAPIEvent: Unknown objective type ${typeof or}`)];
+          return [failedEngineEvent, new Error(`handleAPIEvent: Unknown objective type ${typeof or}`)];
       }
     } finally {
       if (deferredSignalObjectiveStarted) {
@@ -775,7 +794,7 @@ export class Engine {
   // handlePaymentRequest handles an PaymentRequest (triggered by a client API call).
   // It prepares and dispatches a payment message to the counterparty.
   private async handlePaymentRequest(request: PaymentRequest): Promise<[EngineEvent, Error | null]> {
-    const ee = new EngineEvent();
+    const ee = new EngineEvent({});
 
     if (_.isEqual(request, {})) {
       return [ee, new Error('handleAPIEvent: Empty payment request')];
@@ -890,7 +909,7 @@ export class Engine {
       const completeRecordFunction = this.metrics!.recordFunctionDuration(this.attemptProgress.name);
       deferredCompleteRecordFunction = () => completeRecordFunction();
 
-      const outgoing = new EngineEvent();
+      const outgoing = new EngineEvent({});
 
       assert(this.store);
       const signer = this.store.getChannelSigner();
@@ -911,7 +930,7 @@ export class Engine {
       try {
         notifEvents = await this.generateNotifications(crankedObjective);
       } catch (err) {
-        return [new EngineEvent(), err as Error];
+        return [new EngineEvent({}), err as Error];
       }
 
       outgoing.merge(notifEvents);
@@ -948,7 +967,7 @@ export class Engine {
 
   // generateNotifications takes an objective and constructs notifications for any related channels for that objective.
   private async generateNotifications(o: Objective): Promise<EngineEvent> {
-    const outgoing = new EngineEvent();
+    const outgoing = new EngineEvent({});
 
     for await (const rel of o.related()) {
       switch (rel.constructor) {
@@ -1254,18 +1273,12 @@ export class Engine {
         message: `${this.store?.getAddress()}, error in run loop`,
       });
 
-      // TODO: Implement
-      // for _, nonFatalError := range nonFatalErrors {
-      //   if errors.Is(err, nonFatalError) {
-      //     return
-      //   }
-      // }
+      for (const nonFatalError of nonFatalErrors) {
+        if (_.isEqual(err, nonFatalError)) {
+          return;
+        }
+      }
 
-      // We wait for a bit so the previous log line has time to complete
-      await new Promise((resolve) => { setTimeout(() => resolve, 1000); });
-
-      // TODO instead of a panic, errors should be sent to the manager of the engine via a channel. At the moment,
-      // the engine manager is the nitro node.
       throw err;
     }
   }
