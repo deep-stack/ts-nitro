@@ -6,7 +6,7 @@ Run relay node using v2 watcher
 
 ## `ts-nitro` - `ts-nitro`
 
-Instructions to run two instances of `ts-nitro` clients in a browser environment and create channels between them
+Instructions to run two instances of `ts-nitro` nodes in a browser environment and create channels between them
 
 ### Setup
 
@@ -55,23 +55,23 @@ Instructions to run two instances of `ts-nitro` clients in a browser environment
 
 * Refresh the apps for enabling logs
 
-* Setup clients
+* setup nodes
 
   * In first browser
 
     ```bash
-    const nitro = await setupClient('charlie')
+    const nitro = await setupNode('charlie')
     ```
 
   * In second browser
 
     ```bash
-    const nitro = await setupClient('david')
+    const nitro = await setupNode('david')
     ```
 
 * Wait for `New peer found` log in console
 
-* Call method `nitro.directFund` with address of the other browser client and amount to be allocated
+* Call method `nitro.directFund` with address of the other browser node and amount to be allocated
 
   * For example, call `nitro.directFund` in Charlie's browser with David's address
 
@@ -92,7 +92,7 @@ Instructions to run two instances of `ts-nitro` clients in a browser environment
     let LEDGER_CHANNEL_ID = "<LEDGER_CHANNEL_ID>"
     ```
 
-* Call method `nitro.virtualFund` with address of the other browser client and amount to be allocated
+* Call method `nitro.virtualFund` with address of the other browser node and amount to be allocated
 
   * Call `nitro.virtualFund` in Charlie's browser with David's address
 
@@ -119,7 +119,7 @@ Instructions to run two instances of `ts-nitro` clients in a browser environment
     await nitro.pay(PAYMENT_CHANNEL_ID, 50)
     ```
 
-  * Wait for Received voucher log in client David
+  * Wait for Received voucher log in node David
 
 * Close the virtual payment channel
 
@@ -165,11 +165,11 @@ Instructions to run two instances of `ts-nitro` clients in a browser environment
     # Result: 1000050
     ```
 
-* Close both clients
+* Close both nodes
 
 ## `ts-nitro` - `go-nitro`
 
-Instructions to run instances of `ts-nitro` (browser) and `go-nitro` clients and create a ledger channel between them
+Instructions to run instances of `ts-nitro` (browser) and `go-nitro` nodes and create a ledger channel between them
 
 ### Setup
 
@@ -195,10 +195,10 @@ Instructions to run instances of `ts-nitro` (browser) and `go-nitro` clients and
 
 * Refresh the app for enabling logs
 
-* Setup client
+* setup node
 
   ```bash
-  const nitro = await setupClient('david')
+  const nitro = await setupNode('david')
   ```
 
 * Assign private keys of Erin to variables
@@ -218,7 +218,7 @@ Instructions to run instances of `ts-nitro` (browser) and `go-nitro` clients and
     export CA_ADDRESS=0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
     ```
 
-* In `go-nitro` repo run a client for Erin (0xB2B22ec3889d11f2ddb1A1Db11e80D20EF367c01):
+* In `go-nitro` repo run a node for Erin (0xB2B22ec3889d11f2ddb1A1Db11e80D20EF367c01):
 
   ```bash
   # In statechannels/go-nitro
@@ -236,13 +236,13 @@ Instructions to run instances of `ts-nitro` (browser) and `go-nitro` clients and
 
   ```
 
-* In David's browser call method `nitro.addPeerByMultiaddr` in browser console to connect to client Erin
+* In David's browser call method `nitro.addPeerByMultiaddr` in browser console to connect to node Erin
 
   ```bash
   await nitro.addPeerByMultiaddr('0xB2B22ec3889d11f2ddb1A1Db11e80D20EF367c01', '/ip4/127.0.0.1/tcp/5006/ws/p2p/16Uiu2HAmF7aWvcJoAWWE5LqRoxnZJUBbeKmtWrb2EN7VZgH9hXVH')
   ```
 
-* Call method `nitro.directFund` with address of client Erin and check logs
+* Call method `nitro.directFund` with address of node Erin and check logs
 
   ```bash
   await nitro.directFund('0xB2B22ec3889d11f2ddb1A1Db11e80D20EF367c01', 1_000_000)
@@ -342,14 +342,14 @@ Instructions to run instances of `ts-nitro` (browser) and `go-nitro` clients and
     # Result: 2000000
     ```
 
-* Close both clients
+* Close both nodes
 
 ## Clean up
 
-* Clear nitro client storage
+* Clear nitro node storage
 
   ```bash
-  clearClientStorage()
+  clearNodeStorage()
   ```
 
 ## Getting Started with Create React App

@@ -2,7 +2,7 @@
 
 ## `NodeJS` - `Browser`
 
-Instructions to run instances of `ts-nitro` clients in NodeJS and browser environments and create a ledger channel between them
+Instructions to run instances of `ts-nitro` nodes in NodeJS and browser environments and create a ledger channel between them
 
 ### Prerequisite
 
@@ -10,9 +10,9 @@ Run relay node using v2 watcher
 
 ### Setup
 
-* Clone `ts-nitro` repo in a separate directory which will be used for running the client in browser environment
+* Clone `ts-nitro` repo in a separate directory which will be used for running the node in browser environment
 
-* In the first repo follow steps from [server readme setup](./packages/server/README.md#setup) for NodeJS environment client
+* In the first repo follow steps from [server readme setup](./packages/server/README.md#setup) for NodeJS environment node
 
 * In second repo follow these steps:
 
@@ -52,10 +52,10 @@ Run relay node using v2 watcher
 
 * Refresh the app for enabling logs
 
-* Setup client
+* Setup node
 
   ```bash
-  const nitro = await setupClient('charlie')
+  const nitro = await setupNode('charlie')
   ```
 
 * Assign private keys of Bob to variables
@@ -67,7 +67,7 @@ Run relay node using v2 watcher
     export CHARLIE_ADDRESS=0x67D5b55604d1aF90074FcB69b8C51838FFF84f8d
     ```
 
-* Run the client for Bob (`0xBBB676f9cFF8D242e9eaC39D063848807d3D1D94`) and pass in Charlie’s address as a counterparty to create the ledger channel with::
+* Run the node for Bob (`0xBBB676f9cFF8D242e9eaC39D063848807d3D1D94`) and pass in Charlie’s address as a counterparty to create the ledger channel with::
 
     ```bash
     # In packages/server
@@ -87,7 +87,7 @@ Run relay node using v2 watcher
     export LEDGER_CHANNEL_ID=<LEDGER_CHANNEL_ID>
     ```
 
-* Run client for Bob again to create virtual payment channel:
+* Run node for Bob again to create virtual payment channel:
 
     ```bash
     yarn cli --pk $BOB_PK --chainpk $BOB_CHAIN_PK --store ./out/bob-db --virtual-fund --counterparty $CHARLIE_ADDRESS --get-payment-channel --amount 1000
@@ -103,13 +103,13 @@ Run relay node using v2 watcher
     export PAYMENT_CHANNEL_ID=<PAYMENT_CHANNEL_ID>
     ```
 
-* Run client for Bob to make payment:
+* Run node for Bob to make payment:
 
     ```bash
     yarn cli --pk $BOB_PK --chainpk $BOB_CHAIN_PK --store ./out/bob-db --pay --amount 50 --payment-channel $PAYMENT_CHANNEL_ID --wait
     ```
 
-  * Wait for voucher received log in client Charlie
+  * Wait for voucher received log in node Charlie
 
 * Check status of payment channel after making payments in browser
 
@@ -117,7 +117,7 @@ Run relay node using v2 watcher
     out(await nitro.getPaymentChannel("<$PAYMENT_CHANNEL_ID>"))
     ```
 
-* Close virtual payment channel using client Bob
+* Close virtual payment channel using node Bob
 
   ```bash
   yarn cli --pk $BOB_PK --chainpk $BOB_CHAIN_PK --store ./out/bob-db --virtual-defund --payment-channel $PAYMENT_CHANNEL_ID --get-payment-channel
@@ -127,7 +127,7 @@ Run relay node using v2 watcher
   # ts-nitro:server Virtual payment channel with id 0xe613b9f1651f971473061a968823463e9570b83230c2bce734b21800f663e4aa closed
   ```
 
-* Close the ledger channel using client Bob
+* Close the ledger channel using node Bob
 
   ```bash
   yarn cli --pk $BOB_PK --chainpk $BOB_CHAIN_PK --store ./out/bob-db --direct-defund --ledger-channel $LEDGER_CHANNEL_ID --get-ledger-channel
@@ -177,8 +177,8 @@ Run relay node using v2 watcher
     rm -r ./out
     ```
 
-* In browser apps call `clearClientStorage` method to delete all indexedDBs
+* In browser apps call `clearNodeStorage` method to delete all indexedDBs
 
     ```bash
-    clearClientStorage()
+    await clearNodeStorage()
     ```

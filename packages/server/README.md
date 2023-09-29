@@ -6,7 +6,7 @@ Run relay node using a v2 watcher
 
 ## `ts-nitro` - `ts-nitro`
 
-Instructions to run two instances of `ts-nitro` clients in a node environment and create a ledger and a virtual channel between them
+Instructions to run two instances of `ts-nitro` nodes in a node environment and create a ledger and a virtual channel between them
 
 ### Setup
 
@@ -60,7 +60,7 @@ Instructions to run two instances of `ts-nitro` clients in a node environment an
     export BOB_CHAIN_PK=59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
     ```
 
-* Run a client for Bob (`0xBBB676f9cFF8D242e9eaC39D063848807d3D1D94`) with `wait` flag to keep it running:
+* Run a node for Bob (`0xBBB676f9cFF8D242e9eaC39D063848807d3D1D94`) with `wait` flag to keep it running:
 
   ```bash
   # In packages/server
@@ -79,7 +79,7 @@ Instructions to run two instances of `ts-nitro` clients in a node environment an
     export BOB_ADDRESS=0xBBB676f9cFF8D242e9eaC39D063848807d3D1D94
     ```
 
-* Run another client for Alice (`0xAAA6628Ec44A8a742987EF3A114dDFE2D4F7aDCE`) and pass in Bob's address as a counterparty to create the ledger channel with:
+* Run another node for Alice (`0xAAA6628Ec44A8a742987EF3A114dDFE2D4F7aDCE`) and pass in Bob's address as a counterparty to create the ledger channel with:
 
   ```bash
   # In packages/server
@@ -120,7 +120,7 @@ Instructions to run two instances of `ts-nitro` clients in a node environment an
   # } +194ms
   ```
 
-* Run client for Alice again to create virtual payment channel:
+* Run node for Alice again to create virtual payment channel:
 
   ```bash
   yarn cli --pk $ALICE_PK --chainpk $ALICE_CHAIN_PK --store ./out/alice-db --virtual-fund --counterparty $BOB_ADDRESS --amount 1000
@@ -157,7 +157,7 @@ Instructions to run two instances of `ts-nitro` clients in a node environment an
   # } +179ms
   ```
 
-* Run client for Alice to make payment:
+* Run node for Alice to make payment:
 
   ```bash
   yarn cli --pk $ALICE_PK --chainpk $ALICE_CHAIN_PK --store ./out/alice-db --pay --amount 50 --payment-channel $PAYMENT_CHANNEL_ID --wait
@@ -170,7 +170,7 @@ Instructions to run two instances of `ts-nitro` clients in a node environment an
   # Sending message: {"to":"0xBBB676","from":"0xAAA662","payloadSummaries":[],"proposalSummaries":[],"payments":[{"amount":50,"channelId":"0x033d8dcf8a34333cf7807082c03cb940241a3a115a7fa44e47de2c9ec7e5e992"}],"rejectedObjectives":[]} +180ms
   ```
 
-  * Wait for voucher receieved log in client Bob
+  * Wait for voucher receieved log in node Bob
 
     ```bash
     # Expected output:
@@ -185,7 +185,7 @@ Instructions to run two instances of `ts-nitro` clients in a node environment an
     # ts-nitro:util:helpers } +0ms
     ```
 
-  * Close client Alice after getting above log
+  * Close node Alice after getting above log
 
   * Pay command can be run multiple times
 
@@ -195,7 +195,7 @@ Instructions to run two instances of `ts-nitro` clients in a node environment an
     yarn cli -p 3005 --pk $ALICE_PK --chainpk $ALICE_CHAIN_PK --store ./out/alice-db --get-payment-channel --payment-channel $PAYMENT_CHANNEL_ID
     ```
 
-* Close virtual payment channel using client Alice
+* Close virtual payment channel using node Alice
 
   ```bash
   yarn cli --pk $ALICE_PK --chainpk $ALICE_CHAIN_PK --store ./out/alice-db --virtual-defund --payment-channel $PAYMENT_CHANNEL_ID --get-payment-channel
@@ -217,7 +217,7 @@ Instructions to run two instances of `ts-nitro` clients in a node environment an
   # } +1ms
   ```
 
-* Close the ledger channel using client Alice
+* Close the ledger channel using node Alice
 
   ```bash
   yarn cli --pk $ALICE_PK --chainpk $ALICE_CHAIN_PK --store ./out/alice-db --direct-defund --ledger-channel $LEDGER_CHANNEL_ID --get-ledger-channel
@@ -281,7 +281,7 @@ Instructions to run two instances of `ts-nitro` clients in a node environment an
 
 ## `ts-nitro` - `go-nitro`
 
-Instructions to run instances of `ts-nitro` (node) and `go-nitro` clients and create a ledger channel between them
+Instructions to run instances of `ts-nitro` (node) and `go-nitro` nodes and create a ledger channel between them
 
 ### Setup
 
@@ -318,7 +318,7 @@ Instructions to run instances of `ts-nitro` (node) and `go-nitro` clients and cr
     export CA_ADDRESS=0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
     ```
 
-* Run a client for Erin (0xB2B22ec3889d11f2ddb1A1Db11e80D20EF367c01):
+* Run a node for Erin (0xB2B22ec3889d11f2ddb1A1Db11e80D20EF367c01):
 
   ```bash
   # In statechannels/go-nitro
@@ -343,7 +343,7 @@ Instructions to run instances of `ts-nitro` (node) and `go-nitro` clients and cr
     export ERIN_ADDRESS=0xB2B22ec3889d11f2ddb1A1Db11e80D20EF367c01
     ```
 
-* Create a JSON file (`additional-peers.json`) with the following contents (go-nitro client Erin's peer info) for further usage:
+* Create a JSON file (`additional-peers.json`) with the following contents (go-nitro node Erin's peer info) for further usage:
 
   ```json
   [
@@ -354,7 +354,7 @@ Instructions to run instances of `ts-nitro` (node) and `go-nitro` clients and cr
   ]
   ```
 
-* Run client for Alice (`0xAAA6628Ec44A8a742987EF3A114dDFE2D4F7aDCE`) and pass in Erin's address as a counterparty to create the ledger channel with:
+* Run node for Alice (`0xAAA6628Ec44A8a742987EF3A114dDFE2D4F7aDCE`) and pass in Erin's address as a counterparty to create the ledger channel with:
 
   ```bash
   # In packages/server
@@ -395,7 +395,7 @@ Instructions to run instances of `ts-nitro` (node) and `go-nitro` clients and cr
   # } +194ms
   ```
 
-* Run client for Alice again to create virtual payment channel:
+* Run node for Alice again to create virtual payment channel:
 
   ```bash
   yarn cli -p 3005 --pk $ALICE_PK --chainpk $ALICE_CHAIN_PK --store ./out/alice-db --virtual-fund --counterparty $ERIN_ADDRESS --amount 1000 --additional-peers ./additional-peers.json
@@ -432,7 +432,7 @@ Instructions to run instances of `ts-nitro` (node) and `go-nitro` clients and cr
   # } +179ms
   ```
 
-* Run client for Alice to make payment:
+* Run node for Alice to make payment:
 
   ```bash
   yarn cli -p 3005 --pk $ALICE_PK --chainpk $ALICE_CHAIN_PK --store ./out/alice-db --pay --amount 50 --payment-channel $PAYMENT_CHANNEL_ID --wait  --counterparty $ERIN_ADDRESS --additional-peers ./additional-peers.json
@@ -451,7 +451,7 @@ Instructions to run instances of `ts-nitro` (node) and `go-nitro` clients and cr
     yarn cli -p 3005 --pk $ALICE_PK --chainpk $ALICE_CHAIN_PK --store ./out/alice-db --get-payment-channel --payment-channel $PAYMENT_CHANNEL_ID  --counterparty $ERIN_ADDRESS --additional-peers ./additional-peers.json
     ```
 
-* Close virtual payment channel using client Alice
+* Close virtual payment channel using node Alice
 
   ```bash
   yarn cli -p 3005 --pk $ALICE_PK --chainpk $ALICE_CHAIN_PK --store ./out/alice-db --virtual-defund --payment-channel $PAYMENT_CHANNEL_ID  --counterparty $ERIN_ADDRESS --additional-peers ./additional-peers.json
@@ -474,7 +474,7 @@ Instructions to run instances of `ts-nitro` (node) and `go-nitro` clients and cr
 
   ```
 
-* Close the ledger channel using client Alice
+* Close the ledger channel using node Alice
 
   ```bash
   yarn cli -p 3005 --pk $ALICE_PK --chainpk $ALICE_CHAIN_PK --store ./out/alice-db --direct-defund --ledger-channel $LEDGER_CHANNEL_ID --get-ledger-channel --counterparty $ERIN_ADDRESS --additional-peers ./additional-peers.json
