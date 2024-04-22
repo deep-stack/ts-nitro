@@ -1,4 +1,6 @@
-# Generate contract bindings
+# nitro-util
+
+## Generate contract bindings
 
 * Clone the go-nitro repo (<https://github.com/statechannels/go-nitro>) and run `yarn` in root of repo.
 
