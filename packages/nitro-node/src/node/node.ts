@@ -122,7 +122,7 @@ export class Node {
         message: 'direct fund error',
         error: err,
       }));
-      throw new Error(`counterparty check failed: ${err}`);
+      throw new WrappedError(`counterparty check failed: ${err}`, err as Error);
     }
 
     if (channelExists) {

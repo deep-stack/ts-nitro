@@ -593,7 +593,7 @@ export class Engine {
           // TODO: return the amount we paid?
           await this.vm.receive(voucher);
         } catch (err) {
-          return [new EngineEvent({}), new Error(`error accepting payment voucher: ${err}`)];
+          return [new EngineEvent({}), new WrappedError(`error accepting payment voucher: ${err}`, err as Error)];
         } finally {
           allCompleted.receivedVouchers.push(voucher);
         }
@@ -906,7 +906,7 @@ export class Engine {
     try {
       voucher = await this.vm!.pay(cId, request.amount, this.store!.getChannelSigner());
     } catch (err) {
-      return [ee, new Error(`handleAPIEvent: Error making payment: ${err}`)];
+      return [ee, new WrappedError(`handleAPIEvent: Error making payment: ${err}`, err as Error)];
     }
 
     const [c, ok] = await this.store!.getChannelById(cId);
@@ -926,7 +926,7 @@ export class Engine {
     try {
       info = await getPaymentChannelInfo(cId, this.store!, this.vm!);
     } catch (err) {
-      return [ee, new Error(`handleAPIEvent: Error querying channel info: ${err}`)];
+      return [ee, new WrappedError(`handleAPIEvent: Error querying channel info: ${err}`, err as Error)];
     }
 
     ee.paymentChannelUpdates = [...ee.paymentChannelUpdates, info];
@@ -1186,20 +1186,29 @@ export class Engine {
         try {
           c = dfo.createConsensusChannel();
         } catch (err) {
-          throw new Error(`could not create consensus channel for objective ${crankedObjective.id()}: ${err}`);
+          throw new WrappedError(
+            `could not create consensus channel for objective ${crankedObjective.id()}: ${err}`,
+            err as Error,
+          );
         }
 
         try {
           await this.store.setConsensusChannel(c);
         } catch (err) {
-          throw new Error(`could not store consensus channel for objective ${crankedObjective.id()}: ${err}`);
+          throw new WrappedError(
+            `could not store consensus channel for objective ${crankedObjective.id()}: ${err}`,
+            err as Error,
+          );
         }
 
         try {
           // Destroy the channel since the consensus channel takes over governance:
           await this.store.destroyChannel(c.id);
         } catch (err) {
-          throw new Error(`Could not destroy consensus channel for objective ${crankedObjective.id()}: ${err}`);
+          throw new WrappedError(
+            `Could not destroy consensus channel for objective ${crankedObjective.id()}: ${err}`,
+            err as Error,
+          );
         }
       }
     } finally {
@@ -1232,7 +1241,7 @@ export class Engine {
           try {
             newObj = await this.constructObjectiveFromMessage(id, p);
           } catch (constructErr) {
-            throw new Error(`error constructing objective from message: ${constructErr}`);
+            throw new WrappedError(`error constructing objective from message: ${constructErr}`, err as Error);
           }
 
           if (METRICS_ENABLED) {
@@ -1242,7 +1251,7 @@ export class Engine {
           try {
             await this.store.setObjective(newObj);
           } catch (setErr) {
-            throw new Error(`error setting objective in store: ${setErr}`);
+            throw new WrappedError(`error setting objective in store: ${setErr}`, setErr as Error);
           }
 
           this.logger(JSON.stringify({
@@ -1299,7 +1308,10 @@ export class Engine {
           try {
             await this.registerPaymentChannel(vfo);
           } catch (err) {
-            throw new Error(`could not register channel with payment/receipt manager.\n\ttarget channel: ${id}\n\terr: ${err}`);
+            throw new WrappedError(
+              `could not register channel with payment/receipt manager.\n\ttarget channel: ${id}\n\terr: ${err}`,
+              err as Error,
+            );
           }
 
           return vfo;
@@ -1309,7 +1321,7 @@ export class Engine {
           try {
             vId = getVirtualChannelFromObjectiveId(id);
           } catch (err) {
-            throw new Error(`could not determine virtual channel id from objective ${id}: ${err}`);
+            throw new WrappedError(`could not determine virtual channel id from objective ${id}: ${err}`, err as Error);
           }
 
           let minAmount: bigint | undefined = BigInt(0);
@@ -1318,7 +1330,7 @@ export class Engine {
             try {
               paid = await this.vm.paid(vId);
             } catch (err) {
-              throw new Error(`could not determine virtual channel id from objective ${id}: ${err}`);
+              throw new WrappedError(`could not determine virtual channel id from objective ${id}: ${err}`, err as Error);
             }
 
             minAmount = paid;
@@ -1440,7 +1452,7 @@ type MessageDirection = string;
 // fromMsgErr wraps errors from objective construction functions and
 // returns an error bundled with the objectiveID
 function fromMsgErr(id: ObjectiveId, err: Error): Error {
-  return new Error(`could not create objective from message.\n\ttarget objective: ${id}\n\terr: ${err}`);
+  return new WrappedError(`could not create objective from message.\n\ttarget objective: ${id}\n\terr: ${err}`, err as Error);
 }
 
 // getProposalObjectiveId returns the objectiveId for a proposal.

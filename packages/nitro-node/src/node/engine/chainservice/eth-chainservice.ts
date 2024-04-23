@@ -389,7 +389,7 @@ export class EthChainService implements ChainService {
                   // eslint-disable-next-line no-await-in-loop
                   await this.checkForMissedEvents(latestBlockNum);
                 } catch (checkErr) {
-                  errorChan.push(new Error(`subscribeFilterLogs failed during checkForMissedEvents: ${checkErr}`));
+                  errorChan.push(new WrappedError(`subscribeFilterLogs failed during checkForMissedEvents: ${checkErr}`, checkErr as Error));
                   return;
                 }
 
@@ -532,7 +532,7 @@ export class EthChainService implements ChainService {
             );
             await this.out.push(event);
           } catch (err) {
-            throw new Error(`error in ParseDeposited: ${err}`);
+            throw new WrappedError(`error in ParseDeposited: ${err}`, err as Error);
           }
           break;
         }
@@ -542,7 +542,7 @@ export class EthChainService implements ChainService {
           try {
             au = this.na.interface.parseLog(l).args as unknown as AllocationUpdatedEventObject;
           } catch (err) {
-            throw new Error(`error in ParseAllocationUpdated: ${err}`);
+            throw new WrappedError(`error in ParseAllocationUpdated: ${err}`, err as Error);
           }
 
           let tx;
@@ -553,7 +553,7 @@ export class EthChainService implements ChainService {
               throw new Error('Expected transaction to be part of the chain, but the transaction is pending');
             }
           } catch (err) {
-            throw new Error(`error in TransactionByHash: ${err}`);
+            throw new WrappedError(`error in TransactionByHash: ${err}`, err as Error);
           }
 
           assert(tx !== undefined);
@@ -590,7 +590,7 @@ export class EthChainService implements ChainService {
             const event = new ConcludedEvent({ _channelID: new Destination(ce.channelId), _blockNum: BigInt(l.blockNumber) });
             await this.out.push(event);
           } catch (err) {
-            throw new Error(`error in ParseConcluded: ${err}`);
+            throw new WrappedError(`error in ParseConcluded: ${err}`, err as Error);
           }
           break;
         }
@@ -613,7 +613,7 @@ export class EthChainService implements ChainService {
 
             this.out.push(event);
           } catch (err) {
-            throw new Error(`error in ParseChallengeRegistered: ${err}`);
+            throw new WrappedError(`error in ParseChallengeRegistered: ${err}`, err as Error);
           }
           break;
         }
