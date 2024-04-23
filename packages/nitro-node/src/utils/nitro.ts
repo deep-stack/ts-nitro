@@ -233,7 +233,7 @@ export class Nitro {
     status: ChannelStatus,
     ctx: Context,
   ) {
-    const paymentUpdatesChannel = this.node.paymentUpdates();
+    const paymentUpdatesChannel = await this.node.paymentUpdates();
 
     while (true) {
       /* eslint-disable default-case */
@@ -262,7 +262,7 @@ export class Nitro {
     status: ChannelStatus,
     ctx: Context,
   ) {
-    const ledgerUpdatesChannel = this.node.ledgerUpdates();
+    const ledgerUpdatesChannel = await this.node.ledgerUpdates();
 
     while (true) {
       /* eslint-disable default-case */
@@ -297,7 +297,7 @@ export class Nitro {
       }
     };
 
-    const paymentUpdatesChannel = this.node.paymentUpdates();
+    const paymentUpdatesChannel = await this.node.paymentUpdates();
 
     while (true) {
       /* eslint-disable default-case */
