@@ -1417,7 +1417,7 @@ export class ConsensusChannel {
     try {
       signature = await this.sign(vars, signer);
     } catch (err) {
-      throw new Error('unable to sign state update');
+      throw new Error(`unable to sign state update: ${err}`);
     }
 
     const signed = this._proposalQueue[0];
