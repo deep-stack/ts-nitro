@@ -81,7 +81,7 @@ export function getRequestFinalStatePayload(b: Buffer): Destination {
   try {
     cId = Destination.fromJSON(b.toString());
   } catch (err) {
-    throw new WrappedError(`could not unmarshal signatures: ${err}`, err as Error);
+    throw new WrappedError('could not unmarshal signatures', err as Error);
   }
   return cId;
 }
@@ -546,7 +546,7 @@ export class Objective implements ObjectiveInterface {
         try {
           s = updated.generateFinalState();
         } catch (err) {
-          throw new WrappedError(`could not generate final state: ${err}`, err as Error);
+          throw new WrappedError('could not generate final state', err as Error);
         }
       } else {
         s = updated.finalState();
@@ -557,13 +557,13 @@ export class Objective implements ObjectiveInterface {
       try {
         ss = await updated.v!.signAndAddState(s, signer);
       } catch (err) {
-        throw new WrappedError(`could not sign final state: ${err}`, err as Error);
+        throw new WrappedError('could not sign final state', err as Error);
       }
       let messages: Message[];
       try {
         messages = Message.createObjectivePayloadMessage(updated.id(), ss, SignedStatePayload, ...this.otherParticipants());
       } catch (err) {
-        throw new WrappedError(`could not get create payload message: ${err}`, err as Error);
+        throw new WrappedError('could not get create payload message', err as Error);
       }
       sideEffects.messagesToSend.push(...messages);
     }
@@ -578,7 +578,7 @@ export class Objective implements ObjectiveInterface {
       try {
         ledggerSideEffects = await updated.updateLedgerToRemoveGuarantee(updated.toMyLeft!, signer);
       } catch (err) {
-        throw new WrappedError(`error updating ledger funding: ${err}`, err as Error);
+        throw new WrappedError('error updating ledger funding', err as Error);
       }
       sideEffects.merge(ledggerSideEffects);
     }
@@ -588,7 +588,7 @@ export class Objective implements ObjectiveInterface {
       try {
         ledgerSideEffects = await updated.updateLedgerToRemoveGuarantee(updated.toMyRight!, signer);
       } catch (err) {
-        throw new WrappedError(`error updating ledger funding: ${err}`, err as Error);
+        throw new WrappedError('error updating ledger funding', err as Error);
       }
       sideEffects.merge(ledgerSideEffects);
     }
@@ -636,7 +636,7 @@ export class Objective implements ObjectiveInterface {
       try {
         await ledger.propose(this.ledgerProposal(ledger), signer);
       } catch (err) {
-        throw new WrappedError(`error proposing ledger update: ${err}`, err as Error);
+        throw new WrappedError('error proposing ledger update', err as Error);
       }
 
       const receipient = ledger.follower();
@@ -654,7 +654,7 @@ export class Objective implements ObjectiveInterface {
         try {
           sp = await ledger.signNextProposal(this.ledgerProposal(ledger), signer);
         } catch (err) {
-          throw new WrappedError(`could not sign proposal: ${err}`, err as Error);
+          throw new WrappedError('could not sign proposal', err as Error);
         }
 
         // ledger sideEffect
@@ -724,7 +724,7 @@ export class Objective implements ObjectiveInterface {
             updated.minimumPaymentAmount,
           );
         } catch (err) {
-          throw new WrappedError(`outcome failed validation ${err}`, err as Error);
+          throw new WrappedError('outcome failed validation', err as Error);
         }
 
         const ok = updated.v!.addSignedState(ss);
@@ -796,7 +796,7 @@ export class Objective implements ObjectiveInterface {
 
       if (err) {
         throw new WrappedError(
-          `error incorporating signed proposal ${JSONbigNative.stringify(sp)} into objective: ${err}`,
+          `error incorporating signed proposal ${JSONbigNative.stringify(sp)} into objective`,
           err as Error,
         );
       }

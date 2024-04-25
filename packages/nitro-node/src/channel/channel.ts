@@ -124,7 +124,7 @@ export class Channel extends FixedPart {
     try {
       props = fromJSON(this.jsonEncodingMap, data);
     } catch (err) {
-      throw new WrappedError(`error unmarshaling channel data: ${err}`, err as Error);
+      throw new WrappedError('error unmarshaling channel data', err as Error);
     }
 
     return new Channel(props);
@@ -389,14 +389,14 @@ export class Channel extends FixedPart {
     try {
       sig = await s.sign(signer);
     } catch (err) {
-      throw new WrappedError(`Could not sign prefund ${err}`, err as Error);
+      throw new WrappedError('Could not sign prefund', err as Error);
     }
 
     const ss = SignedState.newSignedState(s);
     try {
       ss.addSignature(sig);
     } catch (err) {
-      throw new WrappedError(`could not add own signature ${err}`, err as Error);
+      throw new WrappedError('could not add own signature', err as Error);
     }
 
     const ok = this.addSignedState(ss);

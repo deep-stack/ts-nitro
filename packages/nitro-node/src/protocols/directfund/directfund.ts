@@ -64,7 +64,7 @@ const getSignedStatePayload = (b: Buffer): SignedState => {
   try {
     return SignedState.fromJSON(b.toString());
   } catch (err) {
-    throw new WrappedError(`could not unmarshal signed state: ${err}`, err as Error);
+    throw new WrappedError('could not unmarshal signed state', err as Error);
   }
 };
 
@@ -153,12 +153,12 @@ export class Objective implements ObjectiveInterface {
     try {
       channelExists = await channelsExistWithCounterparty(request.counterParty, getChannels, getTwoPartyConsensusLedger);
     } catch (err) {
-      throw new WrappedError(`counterparty check failed: ${err}`, err as Error);
+      throw new WrappedError('counterparty check failed', err as Error);
     }
 
     if (channelExists) {
       throw new WrappedError(
-        `counterparty ${request.counterParty}: ${ErrLedgerChannelExists}`,
+        `counterparty ${request.counterParty}`,
         ErrLedgerChannelExists,
       );
     }
@@ -179,7 +179,7 @@ export class Objective implements ObjectiveInterface {
     try {
       b = Buffer.from(JSONbigNative.stringify(signedInitial), 'utf-8');
     } catch (err) {
-      throw new WrappedError(`could not create new objective: ${err}`, err as Error);
+      throw new WrappedError('could not create new objective', err as Error);
     }
 
     const objectivePayload: ObjectivePayload = {
@@ -192,7 +192,7 @@ export class Objective implements ObjectiveInterface {
     try {
       objective = Objective.constructFromPayload(preApprove, objectivePayload, myAddress);
     } catch (err) {
-      throw new WrappedError(`could not create new objective: ${err}`, err as Error);
+      throw new WrappedError('could not create new objective', err as Error);
     }
 
     return objective;
@@ -209,7 +209,7 @@ export class Objective implements ObjectiveInterface {
     try {
       initialSignedState = getSignedStatePayload(op.payloadData);
     } catch (err) {
-      throw new WrappedError(`could not get signed state payload: ${err}`, err as Error);
+      throw new WrappedError('could not get signed state payload', err as Error);
     }
 
     const initialState = initialSignedState.state();
@@ -247,7 +247,7 @@ export class Objective implements ObjectiveInterface {
     try {
       init.c = channel.Channel.new(initialState, BigInt(myIndex));
     } catch (err) {
-      throw new WrappedError(`failed to initialize channel for direct-fund objective: ${err}`, err as Error);
+      throw new WrappedError('failed to initialize channel for direct-fund objective', err as Error);
     }
 
     const myAllocatedAmount = initialState.outcome.totalAllocatedFor(Destination.addressToDestination(myAddress));
@@ -362,7 +362,7 @@ export class Objective implements ObjectiveInterface {
     try {
       ss = getSignedStatePayload(p.payloadData);
     } catch (err) {
-      throw new WrappedError(`could not get signed state payload: ${err}`, err as Error);
+      throw new WrappedError('could not get signed state payload', err as Error);
     }
 
     assert(updated.c);
@@ -404,14 +404,14 @@ export class Objective implements ObjectiveInterface {
       try {
         ss = await updated.c.signAndAddPrefund(signer);
       } catch (err) {
-        throw new WrappedError(`could not sign prefund ${err}`, err as Error);
+        throw new WrappedError('could not sign prefund', err as Error);
       }
 
       let messages: Message[];
       try {
         messages = Message.createObjectivePayloadMessage(updated.id(), ss, 'SignedStatePayload', ...updated.otherParticipants());
       } catch (err) {
-        throw new WrappedError(`could not create payload message ${err}`, err as Error);
+        throw new WrappedError('could not create payload message', err as Error);
       }
 
       sideEffects.messagesToSend = sideEffects.messagesToSend.concat(messages);
@@ -446,7 +446,7 @@ export class Objective implements ObjectiveInterface {
       try {
         ss = await updated.c.signAndAddPostfund(signer);
       } catch (err) {
-        throw new WrappedError(`could not sign postfund ${err}`, err as Error);
+        throw new WrappedError('could not sign postfund', err as Error);
       }
 
       let messages: Message[];

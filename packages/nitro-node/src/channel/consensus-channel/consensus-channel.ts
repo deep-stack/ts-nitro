@@ -979,7 +979,7 @@ export class ConsensusChannel {
         throw new Error(`Follower did not sign initial state: ${followerAddr}, ${fp.participants![Number(Follower)]}`);
       }
     } catch (err) {
-      throw new WrappedError(`could not verify sig: ${err}`, err as Error);
+      throw new WrappedError('could not verify sig', err as Error);
     }
 
     const current = new SignedVars({
@@ -1266,7 +1266,7 @@ export class ConsensusChannel {
         try {
           signer = consensusCandidate.asState(this.fp).recoverSigner(countersigned.signature);
         } catch (err) {
-          throw new WrappedError(`unable to recover signer: ${err}`, err as Error);
+          throw new WrappedError('unable to recover signer', err as Error);
         }
 
         if (signer !== this.fp.participants![Number(Follower)]) {
@@ -1303,20 +1303,20 @@ export class ConsensusChannel {
     try {
       vars = this.latestProposedVars();
     } catch (err) {
-      throw new WrappedError(`unable to construct latest proposed vars: ${err}`, err as Error);
+      throw new WrappedError('unable to construct latest proposed vars', err as Error);
     }
 
     try {
       vars.handleProposal(proposal);
     } catch (err) {
-      throw new WrappedError(`propose could not add new state vars: ${err}`, err as Error);
+      throw new WrappedError('propose could not add new state vars', err as Error);
     }
 
     let signature: Signature;
     try {
       signature = await this.sign(vars, signer);
     } catch (err) {
-      throw new Error(`unable to sign state update: ${err}`);
+      throw new Error('unable to sign state update');
     }
 
     const signed = new SignedProposal({ proposal, signature, turnNum: vars.turnNum });
@@ -1324,7 +1324,7 @@ export class ConsensusChannel {
     try {
       this.appendToProposalQueue(signed);
     } catch (err) {
-      throw new WrappedError(`could not append to proposal queue: ${err}`, err as Error);
+      throw new WrappedError('could not append to proposal queue', err as Error);
     }
 
     return signed;
@@ -1358,7 +1358,7 @@ export class ConsensusChannel {
       // Get the latest proposal vars we have
       vars = this.latestProposedVars();
     } catch (err) {
-      throw new WrappedError(`could not generate the current proposal: ${err}`, err as Error);
+      throw new WrappedError('could not generate the current proposal', err as Error);
     }
 
     if (p.turnNum !== vars.turnNum + BigInt(1)) {
@@ -1369,7 +1369,7 @@ export class ConsensusChannel {
     try {
       vars.handleProposal(p.proposal);
     } catch (err) {
-      throw new WrappedError(`receive could not add new state vars: ${err}`, err as Error);
+      throw new WrappedError('receive could not add new state vars', err as Error);
     }
 
     // Validate the signature
@@ -1377,7 +1377,7 @@ export class ConsensusChannel {
     try {
       signer = this.recoverSigner(vars, p.signature);
     } catch (err) {
-      throw new WrappedError(`receive could not recover signature: ${err}`, err as Error);
+      throw new WrappedError('receive could not recover signature', err as Error);
     }
 
     if (signer !== this.leader()) {
@@ -1417,7 +1417,7 @@ export class ConsensusChannel {
     try {
       signature = await this.sign(vars, signer);
     } catch (err) {
-      throw new Error(`unable to sign state update: ${err}`);
+      throw new Error('unable to sign state update');
     }
 
     const signed = this._proposalQueue[0];

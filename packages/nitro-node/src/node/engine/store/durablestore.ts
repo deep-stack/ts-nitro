@@ -103,7 +103,7 @@ export class DurableStore implements Store {
     try {
       obj = decodeObjective(id, objJSON);
     } catch (err) {
-      throw new WrappedError(`error decoding objective ${id}: ${err}`, err as Error);
+      throw new WrappedError(`error decoding objective ${id}`, err as Error);
     }
 
     try {
@@ -113,7 +113,7 @@ export class DurableStore implements Store {
       // return existing objective data along with error
       // return obj, fmt.Errorf("error populating channel data for objective %s: %w", id, err)
 
-      throw new WrappedError(`error populating channel data for objective ${id}: ${err}`, err as Error);
+      throw new WrappedError(`error populating channel data for objective ${id}`, err as Error);
     }
 
     return obj;
@@ -125,7 +125,7 @@ export class DurableStore implements Store {
     try {
       objJSON = Buffer.from(JSONbigNative.stringify(obj), 'utf-8');
     } catch (err) {
-      throw new WrappedError(`error setting objective ${obj.id()}: ${err}`, err as Error);
+      throw new WrappedError(`error setting objective ${obj.id()}`, err as Error);
     }
 
     await this.objectives!.put(obj.id(), objJSON);
@@ -137,7 +137,7 @@ export class DurableStore implements Store {
           try {
             await this.setChannel(ch);
           } catch (err) {
-            throw new WrappedError(`error setting virtual channel ${ch.id} from objective ${obj.id()}: ${err}`, err as Error);
+            throw new WrappedError(`error setting virtual channel ${ch.id} from objective ${obj.id()}`, err as Error);
           }
 
           break;
@@ -148,7 +148,7 @@ export class DurableStore implements Store {
           try {
             await this.setChannel(channel);
           } catch (err) {
-            throw new WrappedError(`error setting channel ${channel.id} from objective ${obj.id()}: ${err}`, err as Error);
+            throw new WrappedError(`error setting channel ${channel.id} from objective ${obj.id()}`, err as Error);
           }
 
           break;
@@ -159,7 +159,7 @@ export class DurableStore implements Store {
           try {
             await this.setConsensusChannel(consensusChannel);
           } catch (err) {
-            throw new WrappedError(`error setting consensus channel ${consensusChannel.id} from objective ${obj.id()}: ${err}`, err as Error);
+            throw new WrappedError(`error setting consensus channel ${consensusChannel.id} from objective ${obj.id()}`, err as Error);
           }
 
           break;
@@ -187,7 +187,7 @@ export class DurableStore implements Store {
         try {
           await this.channelToObjective!.put(obj.ownsChannel().string(), obj.id());
         } catch (err) {
-          throw new WrappedError(`cannot transfer ownership of channel: ${err}`, err as Error);
+          throw new WrappedError('cannot transfer ownership of channel', err as Error);
         }
       }
 
@@ -473,7 +473,7 @@ export class DurableStore implements Store {
         try {
           ch = await this._getChannelById(o.c!.id);
         } catch (err) {
-          throw new WrappedError(`error retrieving channel data for objective ${id}: ${err}`, err as Error);
+          throw new WrappedError(`error retrieving channel data for objective ${id}`, err as Error);
         }
 
         o.c = ch;
@@ -487,7 +487,7 @@ export class DurableStore implements Store {
         try {
           ch = await this._getChannelById(o.c!.id);
         } catch (err) {
-          throw new WrappedError(`error retrieving channel data for objective ${id}: ${err}`, err as Error);
+          throw new WrappedError(`error retrieving channel data for objective ${id}`, err as Error);
         }
 
         o.c = ch;
@@ -501,7 +501,7 @@ export class DurableStore implements Store {
         try {
           v = await this._getChannelById(o.v!.id);
         } catch (err) {
-          throw new WrappedError(`error retrieving virtual channel data for objective ${id}: ${err}`, err as Error);
+          throw new WrappedError(`error retrieving virtual channel data for objective ${id}`, err as Error);
         }
 
         o.v = new VirtualChannel(v);
@@ -516,7 +516,7 @@ export class DurableStore implements Store {
           try {
             left = await this.getConsensusChannelById(o.toMyLeft.channel.id);
           } catch (err) {
-            throw new WrappedError(`error retrieving left ledger channel data for objective ${id}: ${err}`, err as Error);
+            throw new WrappedError(`error retrieving left ledger channel data for objective ${id}`, err as Error);
           }
 
           o.toMyLeft.channel = left;
@@ -530,7 +530,7 @@ export class DurableStore implements Store {
           try {
             right = await this.getConsensusChannelById(o.toMyRight.channel.id);
           } catch (err) {
-            throw new WrappedError(`error retrieving right ledger channel data for objective ${id}: ${err}`, err as Error);
+            throw new WrappedError(`error retrieving right ledger channel data for objective ${id}`, err as Error);
           }
 
           o.toMyRight.channel = right;
@@ -545,7 +545,7 @@ export class DurableStore implements Store {
         try {
           v = await this._getChannelById(o.v!.id);
         } catch (err) {
-          throw new WrappedError(`error retrieving virtual channel data for objective ${id}: ${err}`, err as Error);
+          throw new WrappedError(`error retrieving virtual channel data for objective ${id}`, err as Error);
         }
         o.v = new VirtualChannel(v);
 
@@ -559,7 +559,7 @@ export class DurableStore implements Store {
             left = await this.getConsensusChannelById(o.toMyLeft.id);
           } catch (err) {
             throw new WrappedError(
-              `error retrieving left ledger channel data for objective ${id}: ${err}`,
+              `error retrieving left ledger channel data for objective ${id}`,
               err as Error,
             );
           }
@@ -575,7 +575,7 @@ export class DurableStore implements Store {
             right = await this.getConsensusChannelById(o.toMyRight.id);
           } catch (err) {
             throw new WrappedError(
-              `error retrieving right ledger channel data for objective ${id}: ${err}`,
+              `error retrieving right ledger channel data for objective ${id}`,
               err as Error,
             );
           }
@@ -608,7 +608,7 @@ export class DurableStore implements Store {
       vJSON = await this.vouchers!.get(channelId.string());
     } catch (err) {
       throw new WrappedError(
-        `channelId ${channelId.string()}: ${ErrLoadVouchers}`,
+        `channelId ${channelId.string()}`,
         ErrLoadVouchers,
       );
     }

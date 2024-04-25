@@ -122,7 +122,7 @@ export class Node {
         message: 'direct fund error',
         error: err,
       }));
-      throw new WrappedError(`counterparty check failed: ${err}`, err as Error);
+      throw new WrappedError('counterparty check failed', err as Error);
     }
 
     if (channelExists) {
@@ -131,7 +131,7 @@ export class Node {
         error: ErrLedgerChannelExists,
       }));
       throw new WrappedError(
-        `counterparty ${ethers.utils.getAddress(counterparty)}: ${ErrLedgerChannelExists}`,
+        `counterparty ${ethers.utils.getAddress(counterparty)}`,
         ErrLedgerChannelExists,
       );
     }

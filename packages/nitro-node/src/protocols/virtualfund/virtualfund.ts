@@ -348,7 +348,7 @@ export class Objective implements ObjectiveInterface, ProposalReceiver {
 
       return objective;
     } catch (err) {
-      throw new WrappedError(`Error creating objective: ${err}`, err as Error);
+      throw new WrappedError('Error creating objective', err as Error);
     }
   }
 
@@ -462,7 +462,7 @@ export class Objective implements ObjectiveInterface, ProposalReceiver {
     try {
       ss = SignedState.fromJSON(b.toString());
     } catch (err) {
-      throw new WrappedError(`could not unmarshal signed state: ${err}`, err as Error);
+      throw new WrappedError('could not unmarshal signed state', err as Error);
     }
     return ss;
   }
@@ -479,7 +479,7 @@ export class Objective implements ObjectiveInterface, ProposalReceiver {
     try {
       initialState = this.getSignedStatePayload(p.payloadData);
     } catch (err) {
-      throw new WrappedError(`could not get signed state payload: ${err}`, err as Error);
+      throw new WrappedError('could not get signed state payload', err as Error);
     }
     const { participants } = initialState.state();
     assert(participants);
@@ -629,7 +629,7 @@ export class Objective implements ObjectiveInterface, ProposalReceiver {
       }
 
       if (err) {
-        throw new WrappedError(`error incorporating signed proposal ${sp} into objective: ${err}`, err as Error);
+        throw new WrappedError(`error incorporating signed proposal ${sp} into objective`, err as Error);
       }
     }
 
@@ -646,7 +646,7 @@ export class Objective implements ObjectiveInterface, ProposalReceiver {
     try {
       payload = this.getPayload(raw);
     } catch (err) {
-      throw new WrappedError(`error parsing payload: ${err}`, err as Error);
+      throw new WrappedError('error parsing payload', err as Error);
     }
 
     const updated = this.clone();
@@ -687,7 +687,7 @@ export class Objective implements ObjectiveInterface, ProposalReceiver {
       try {
         ledgerSideEffects = await updated.updateLedgerWithGuarantee(updated.toMyLeft!, signer);
       } catch (err) {
-        throw new WrappedError(`error updating ledger funding: ${err}`, err as Error);
+        throw new WrappedError('error updating ledger funding', err as Error);
       }
       sideEffects.merge(ledgerSideEffects);
     }
@@ -697,7 +697,7 @@ export class Objective implements ObjectiveInterface, ProposalReceiver {
       try {
         ledgerSideEffects = await updated.updateLedgerWithGuarantee(updated.toMyRight!, signer);
       } catch (err) {
-        throw new WrappedError(`error updating ledger funding: ${err}`, err as Error);
+        throw new WrappedError('error updating ledger funding', err as Error);
       }
       sideEffects.merge(ledgerSideEffects);
     }
@@ -859,7 +859,7 @@ export class Objective implements ObjectiveInterface, ProposalReceiver {
       try {
         se = await this.proposeLedgerUpdate(ledgerConnection, signer);
       } catch (err) {
-        throw new WrappedError(`error proposing ledger update: ${err}`, err as Error);
+        throw new WrappedError('error proposing ledger update', err as Error);
       }
       sideEffects = se;
     } else {
@@ -870,7 +870,7 @@ export class Objective implements ObjectiveInterface, ProposalReceiver {
         try {
           se = await this.acceptLedgerUpdate(ledgerConnection, signer);
         } catch (err) {
-          throw new WrappedError(`error proposing ledger update: ${err}`, err as Error);
+          throw new WrappedError('error proposing ledger update', err as Error);
         }
 
         sideEffects = se;
