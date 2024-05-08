@@ -16,7 +16,7 @@ Instructions to run two instances of `ts-nitro` clients in a node environment an
   yarn
   ```
 
-* Start a Hardhat chain:
+* Start Anvil chain:
 
   ```bash
   yarn chain
