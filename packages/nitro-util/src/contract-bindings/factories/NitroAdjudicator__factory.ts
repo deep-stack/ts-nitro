@@ -307,6 +307,25 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint48",
+        name: "newTurnNumRecord",
+        type: "uint48",
+      },
+    ],
+    name: "Checkpointed",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "channelId",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "uint48",
         name: "finalizesAt",
         type: "uint48",
       },
@@ -337,6 +356,25 @@ const _abi = [
       },
     ],
     name: "Deposited",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "previousOwner",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "OwnershipTransferred",
     type: "event",
   },
   {
@@ -1398,6 +1436,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes32",
+        name: "l2ChannelId",
+        type: "bytes32",
+      },
+    ],
+    name: "getL2ToL1",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "",
         type: "address",
@@ -1422,6 +1479,254 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    name: "l2Tol1",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "address[]",
+            name: "participants",
+            type: "address[]",
+          },
+          {
+            internalType: "uint64",
+            name: "channelNonce",
+            type: "uint64",
+          },
+          {
+            internalType: "address",
+            name: "appDefinition",
+            type: "address",
+          },
+          {
+            internalType: "uint48",
+            name: "challengeDuration",
+            type: "uint48",
+          },
+        ],
+        internalType: "struct INitroTypes.FixedPart",
+        name: "fixedPart",
+        type: "tuple",
+      },
+      {
+        components: [
+          {
+            components: [
+              {
+                components: [
+                  {
+                    internalType: "address",
+                    name: "asset",
+                    type: "address",
+                  },
+                  {
+                    components: [
+                      {
+                        internalType: "enum ExitFormat.AssetType",
+                        name: "assetType",
+                        type: "uint8",
+                      },
+                      {
+                        internalType: "bytes",
+                        name: "metadata",
+                        type: "bytes",
+                      },
+                    ],
+                    internalType: "struct ExitFormat.AssetMetadata",
+                    name: "assetMetadata",
+                    type: "tuple",
+                  },
+                  {
+                    components: [
+                      {
+                        internalType: "bytes32",
+                        name: "destination",
+                        type: "bytes32",
+                      },
+                      {
+                        internalType: "uint256",
+                        name: "amount",
+                        type: "uint256",
+                      },
+                      {
+                        internalType: "uint8",
+                        name: "allocationType",
+                        type: "uint8",
+                      },
+                      {
+                        internalType: "bytes",
+                        name: "metadata",
+                        type: "bytes",
+                      },
+                    ],
+                    internalType: "struct ExitFormat.Allocation[]",
+                    name: "allocations",
+                    type: "tuple[]",
+                  },
+                ],
+                internalType: "struct ExitFormat.SingleAssetExit[]",
+                name: "outcome",
+                type: "tuple[]",
+              },
+              {
+                internalType: "bytes",
+                name: "appData",
+                type: "bytes",
+              },
+              {
+                internalType: "uint48",
+                name: "turnNum",
+                type: "uint48",
+              },
+              {
+                internalType: "bool",
+                name: "isFinal",
+                type: "bool",
+              },
+            ],
+            internalType: "struct INitroTypes.VariablePart",
+            name: "variablePart",
+            type: "tuple",
+          },
+          {
+            components: [
+              {
+                internalType: "uint8",
+                name: "v",
+                type: "uint8",
+              },
+              {
+                internalType: "bytes32",
+                name: "r",
+                type: "bytes32",
+              },
+              {
+                internalType: "bytes32",
+                name: "s",
+                type: "bytes32",
+              },
+            ],
+            internalType: "struct INitroTypes.Signature[]",
+            name: "sigs",
+            type: "tuple[]",
+          },
+        ],
+        internalType: "struct INitroTypes.SignedVariablePart",
+        name: "candidate",
+        type: "tuple",
+      },
+    ],
+    name: "mirrorConcludeAndTransferAllAssets",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "mirrorChannelId",
+        type: "bytes32",
+      },
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "asset",
+            type: "address",
+          },
+          {
+            components: [
+              {
+                internalType: "enum ExitFormat.AssetType",
+                name: "assetType",
+                type: "uint8",
+              },
+              {
+                internalType: "bytes",
+                name: "metadata",
+                type: "bytes",
+              },
+            ],
+            internalType: "struct ExitFormat.AssetMetadata",
+            name: "assetMetadata",
+            type: "tuple",
+          },
+          {
+            components: [
+              {
+                internalType: "bytes32",
+                name: "destination",
+                type: "bytes32",
+              },
+              {
+                internalType: "uint256",
+                name: "amount",
+                type: "uint256",
+              },
+              {
+                internalType: "uint8",
+                name: "allocationType",
+                type: "uint8",
+              },
+              {
+                internalType: "bytes",
+                name: "metadata",
+                type: "bytes",
+              },
+            ],
+            internalType: "struct ExitFormat.Allocation[]",
+            name: "allocations",
+            type: "tuple[]",
+          },
+        ],
+        internalType: "struct ExitFormat.SingleAssetExit[]",
+        name: "outcome",
+        type: "tuple[]",
+      },
+      {
+        internalType: "bytes32",
+        name: "stateHash",
+        type: "bytes32",
+      },
+    ],
+    name: "mirrorTransferAllAssets",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "owner",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         components: [
           {
             internalType: "bytes32",
@@ -1429,9 +1734,109 @@ const _abi = [
             type: "bytes32",
           },
           {
-            internalType: "bytes32",
-            name: "sourceStateHash",
-            type: "bytes32",
+            components: [
+              {
+                internalType: "address[]",
+                name: "participants",
+                type: "address[]",
+              },
+              {
+                internalType: "uint64",
+                name: "channelNonce",
+                type: "uint64",
+              },
+              {
+                internalType: "address",
+                name: "appDefinition",
+                type: "address",
+              },
+              {
+                internalType: "uint48",
+                name: "challengeDuration",
+                type: "uint48",
+              },
+            ],
+            internalType: "struct INitroTypes.FixedPart",
+            name: "fixedPart",
+            type: "tuple",
+          },
+          {
+            components: [
+              {
+                components: [
+                  {
+                    internalType: "address",
+                    name: "asset",
+                    type: "address",
+                  },
+                  {
+                    components: [
+                      {
+                        internalType: "enum ExitFormat.AssetType",
+                        name: "assetType",
+                        type: "uint8",
+                      },
+                      {
+                        internalType: "bytes",
+                        name: "metadata",
+                        type: "bytes",
+                      },
+                    ],
+                    internalType: "struct ExitFormat.AssetMetadata",
+                    name: "assetMetadata",
+                    type: "tuple",
+                  },
+                  {
+                    components: [
+                      {
+                        internalType: "bytes32",
+                        name: "destination",
+                        type: "bytes32",
+                      },
+                      {
+                        internalType: "uint256",
+                        name: "amount",
+                        type: "uint256",
+                      },
+                      {
+                        internalType: "uint8",
+                        name: "allocationType",
+                        type: "uint8",
+                      },
+                      {
+                        internalType: "bytes",
+                        name: "metadata",
+                        type: "bytes",
+                      },
+                    ],
+                    internalType: "struct ExitFormat.Allocation[]",
+                    name: "allocations",
+                    type: "tuple[]",
+                  },
+                ],
+                internalType: "struct ExitFormat.SingleAssetExit[]",
+                name: "outcome",
+                type: "tuple[]",
+              },
+              {
+                internalType: "bytes",
+                name: "appData",
+                type: "bytes",
+              },
+              {
+                internalType: "uint48",
+                name: "turnNum",
+                type: "uint48",
+              },
+              {
+                internalType: "bool",
+                name: "isFinal",
+                type: "bool",
+              },
+            ],
+            internalType: "struct INitroTypes.VariablePart",
+            name: "variablePart",
+            type: "tuple",
           },
           {
             internalType: "bytes",
@@ -1470,6 +1875,31 @@ const _abi = [
       },
     ],
     name: "reclaim",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "renounceOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "l1ChannelId",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "l2ChannelId",
+        type: "bytes32",
+      },
+    ],
+    name: "setL2ToL1",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -1856,6 +2286,19 @@ const _abi = [
       },
     ],
     name: "transferAllAssets",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "transferOwnership",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

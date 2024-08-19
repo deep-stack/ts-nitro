@@ -128,7 +128,8 @@ export declare namespace INitroTypes {
 export declare namespace IMultiAssetHolder {
   export type ReclaimArgsStruct = {
     sourceChannelId: BytesLike;
-    sourceStateHash: BytesLike;
+    fixedPart: INitroTypes.FixedPartStruct;
+    variablePart: INitroTypes.VariablePartStruct;
     sourceOutcomeBytes: BytesLike;
     sourceAssetIndex: BigNumberish;
     indexOfTargetInSource: BigNumberish;
@@ -139,7 +140,8 @@ export declare namespace IMultiAssetHolder {
 
   export type ReclaimArgsStructOutput = [
     string,
-    string,
+    INitroTypes.FixedPartStructOutput,
+    INitroTypes.VariablePartStructOutput,
     string,
     BigNumber,
     BigNumber,
@@ -148,7 +150,8 @@ export declare namespace IMultiAssetHolder {
     BigNumber
   ] & {
     sourceChannelId: string;
-    sourceStateHash: string;
+    fixedPart: INitroTypes.FixedPartStructOutput;
+    variablePart: INitroTypes.VariablePartStructOutput;
     sourceOutcomeBytes: string;
     sourceAssetIndex: BigNumber;
     indexOfTargetInSource: BigNumber;
@@ -167,12 +170,20 @@ export interface NitroAdjudicatorInterface extends utils.Interface {
     "conclude((address[],uint64,address,uint48),(((address,(uint8,bytes),(bytes32,uint256,uint8,bytes)[])[],bytes,uint48,bool),(uint8,bytes32,bytes32)[]))": FunctionFragment;
     "concludeAndTransferAllAssets((address[],uint64,address,uint48),(((address,(uint8,bytes),(bytes32,uint256,uint8,bytes)[])[],bytes,uint48,bool),(uint8,bytes32,bytes32)[]))": FunctionFragment;
     "deposit(address,bytes32,uint256,uint256)": FunctionFragment;
+    "getL2ToL1(bytes32)": FunctionFragment;
     "holdings(address,bytes32)": FunctionFragment;
-    "reclaim((bytes32,bytes32,bytes,uint256,uint256,bytes32,bytes,uint256))": FunctionFragment;
+    "l2Tol1(bytes32)": FunctionFragment;
+    "mirrorConcludeAndTransferAllAssets((address[],uint64,address,uint48),(((address,(uint8,bytes),(bytes32,uint256,uint8,bytes)[])[],bytes,uint48,bool),(uint8,bytes32,bytes32)[]))": FunctionFragment;
+    "mirrorTransferAllAssets(bytes32,(address,(uint8,bytes),(bytes32,uint256,uint8,bytes)[])[],bytes32)": FunctionFragment;
+    "owner()": FunctionFragment;
+    "reclaim((bytes32,(address[],uint64,address,uint48),((address,(uint8,bytes),(bytes32,uint256,uint8,bytes)[])[],bytes,uint48,bool),bytes,uint256,uint256,bytes32,bytes,uint256))": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
+    "setL2ToL1(bytes32,bytes32)": FunctionFragment;
     "stateIsSupported((address[],uint64,address,uint48),(((address,(uint8,bytes),(bytes32,uint256,uint8,bytes)[])[],bytes,uint48,bool),(uint8,bytes32,bytes32)[])[],(((address,(uint8,bytes),(bytes32,uint256,uint8,bytes)[])[],bytes,uint48,bool),(uint8,bytes32,bytes32)[]))": FunctionFragment;
     "statusOf(bytes32)": FunctionFragment;
     "transfer(uint256,bytes32,bytes,bytes32,uint256[])": FunctionFragment;
     "transferAllAssets(bytes32,(address,(uint8,bytes),(bytes32,uint256,uint8,bytes)[])[],bytes32)": FunctionFragment;
+    "transferOwnership(address)": FunctionFragment;
     "unpackStatus(bytes32)": FunctionFragment;
   };
 
@@ -185,12 +196,20 @@ export interface NitroAdjudicatorInterface extends utils.Interface {
       | "conclude"
       | "concludeAndTransferAllAssets"
       | "deposit"
+      | "getL2ToL1"
       | "holdings"
+      | "l2Tol1"
+      | "mirrorConcludeAndTransferAllAssets"
+      | "mirrorTransferAllAssets"
+      | "owner"
       | "reclaim"
+      | "renounceOwnership"
+      | "setL2ToL1"
       | "stateIsSupported"
       | "statusOf"
       | "transfer"
       | "transferAllAssets"
+      | "transferOwnership"
       | "unpackStatus"
   ): FunctionFragment;
 
@@ -236,12 +255,34 @@ export interface NitroAdjudicatorInterface extends utils.Interface {
     values: [string, BytesLike, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "getL2ToL1",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "holdings",
     values: [string, BytesLike]
   ): string;
+  encodeFunctionData(functionFragment: "l2Tol1", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "mirrorConcludeAndTransferAllAssets",
+    values: [INitroTypes.FixedPartStruct, INitroTypes.SignedVariablePartStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "mirrorTransferAllAssets",
+    values: [BytesLike, ExitFormat.SingleAssetExitStruct[], BytesLike]
+  ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "reclaim",
     values: [IMultiAssetHolder.ReclaimArgsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setL2ToL1",
+    values: [BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "stateIsSupported",
@@ -259,6 +300,10 @@ export interface NitroAdjudicatorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "transferAllAssets",
     values: [BytesLike, ExitFormat.SingleAssetExitStruct[], BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "unpackStatus",
@@ -281,8 +326,24 @@ export interface NitroAdjudicatorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getL2ToL1", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "holdings", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "l2Tol1", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "mirrorConcludeAndTransferAllAssets",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "mirrorTransferAllAssets",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "reclaim", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "setL2ToL1", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "stateIsSupported",
     data: BytesLike
@@ -294,6 +355,10 @@ export interface NitroAdjudicatorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "transferOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "unpackStatus",
     data: BytesLike
   ): Result;
@@ -302,16 +367,20 @@ export interface NitroAdjudicatorInterface extends utils.Interface {
     "AllocationUpdated(bytes32,uint256,uint256,uint256)": EventFragment;
     "ChallengeCleared(bytes32,uint48)": EventFragment;
     "ChallengeRegistered(bytes32,uint48,tuple[],tuple)": EventFragment;
+    "Checkpointed(bytes32,uint48)": EventFragment;
     "Concluded(bytes32,uint48)": EventFragment;
     "Deposited(bytes32,address,uint256)": EventFragment;
+    "OwnershipTransferred(address,address)": EventFragment;
     "Reclaimed(bytes32,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AllocationUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ChallengeCleared"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ChallengeRegistered"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Checkpointed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Concluded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Deposited"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Reclaimed"): EventFragment;
 }
 
@@ -360,6 +429,17 @@ export type ChallengeRegisteredEvent = TypedEvent<
 export type ChallengeRegisteredEventFilter =
   TypedEventFilter<ChallengeRegisteredEvent>;
 
+export interface CheckpointedEventObject {
+  channelId: string;
+  newTurnNumRecord: number;
+}
+export type CheckpointedEvent = TypedEvent<
+  [string, number],
+  CheckpointedEventObject
+>;
+
+export type CheckpointedEventFilter = TypedEventFilter<CheckpointedEvent>;
+
 export interface ConcludedEventObject {
   channelId: string;
   finalizesAt: number;
@@ -379,6 +459,18 @@ export type DepositedEvent = TypedEvent<
 >;
 
 export type DepositedEventFilter = TypedEventFilter<DepositedEvent>;
+
+export interface OwnershipTransferredEventObject {
+  previousOwner: string;
+  newOwner: string;
+}
+export type OwnershipTransferredEvent = TypedEvent<
+  [string, string],
+  OwnershipTransferredEventObject
+>;
+
+export type OwnershipTransferredEventFilter =
+  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface ReclaimedEventObject {
   channelId: string;
@@ -479,14 +571,46 @@ export interface NitroAdjudicator extends BaseContract {
       overrides?: PayableOverrides & { from?: string }
     ): Promise<ContractTransaction>;
 
+    getL2ToL1(
+      l2ChannelId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     holdings(
       arg0: string,
       arg1: BytesLike,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    l2Tol1(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
+
+    mirrorConcludeAndTransferAllAssets(
+      fixedPart: INitroTypes.FixedPartStruct,
+      candidate: INitroTypes.SignedVariablePartStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    mirrorTransferAllAssets(
+      mirrorChannelId: BytesLike,
+      outcome: ExitFormat.SingleAssetExitStruct[],
+      stateHash: BytesLike,
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<[string]>;
+
     reclaim(
       reclaimArgs: IMultiAssetHolder.ReclaimArgsStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    setL2ToL1(
+      l1ChannelId: BytesLike,
+      l2ChannelId: BytesLike,
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
@@ -512,6 +636,11 @@ export interface NitroAdjudicator extends BaseContract {
       channelId: BytesLike,
       outcome: ExitFormat.SingleAssetExitStruct[],
       stateHash: BytesLike,
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    transferOwnership(
+      newOwner: string,
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
@@ -588,14 +717,43 @@ export interface NitroAdjudicator extends BaseContract {
     overrides?: PayableOverrides & { from?: string }
   ): Promise<ContractTransaction>;
 
+  getL2ToL1(l2ChannelId: BytesLike, overrides?: CallOverrides): Promise<string>;
+
   holdings(
     arg0: string,
     arg1: BytesLike,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  l2Tol1(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+  mirrorConcludeAndTransferAllAssets(
+    fixedPart: INitroTypes.FixedPartStruct,
+    candidate: INitroTypes.SignedVariablePartStruct,
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  mirrorTransferAllAssets(
+    mirrorChannelId: BytesLike,
+    outcome: ExitFormat.SingleAssetExitStruct[],
+    stateHash: BytesLike,
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  owner(overrides?: CallOverrides): Promise<string>;
+
   reclaim(
     reclaimArgs: IMultiAssetHolder.ReclaimArgsStruct,
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  renounceOwnership(
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  setL2ToL1(
+    l1ChannelId: BytesLike,
+    l2ChannelId: BytesLike,
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
@@ -621,6 +779,11 @@ export interface NitroAdjudicator extends BaseContract {
     channelId: BytesLike,
     outcome: ExitFormat.SingleAssetExitStruct[],
     stateHash: BytesLike,
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  transferOwnership(
+    newOwner: string,
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
@@ -697,14 +860,44 @@ export interface NitroAdjudicator extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    getL2ToL1(
+      l2ChannelId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     holdings(
       arg0: string,
       arg1: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    l2Tol1(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+    mirrorConcludeAndTransferAllAssets(
+      fixedPart: INitroTypes.FixedPartStruct,
+      candidate: INitroTypes.SignedVariablePartStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    mirrorTransferAllAssets(
+      mirrorChannelId: BytesLike,
+      outcome: ExitFormat.SingleAssetExitStruct[],
+      stateHash: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    owner(overrides?: CallOverrides): Promise<string>;
+
     reclaim(
       reclaimArgs: IMultiAssetHolder.ReclaimArgsStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    setL2ToL1(
+      l1ChannelId: BytesLike,
+      l2ChannelId: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -730,6 +923,11 @@ export interface NitroAdjudicator extends BaseContract {
       channelId: BytesLike,
       outcome: ExitFormat.SingleAssetExitStruct[],
       stateHash: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    transferOwnership(
+      newOwner: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -781,6 +979,15 @@ export interface NitroAdjudicator extends BaseContract {
       candidate?: null
     ): ChallengeRegisteredEventFilter;
 
+    "Checkpointed(bytes32,uint48)"(
+      channelId?: BytesLike | null,
+      newTurnNumRecord?: null
+    ): CheckpointedEventFilter;
+    Checkpointed(
+      channelId?: BytesLike | null,
+      newTurnNumRecord?: null
+    ): CheckpointedEventFilter;
+
     "Concluded(bytes32,uint48)"(
       channelId?: BytesLike | null,
       finalizesAt?: null
@@ -800,6 +1007,15 @@ export interface NitroAdjudicator extends BaseContract {
       asset?: null,
       destinationHoldings?: null
     ): DepositedEventFilter;
+
+    "OwnershipTransferred(address,address)"(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): OwnershipTransferredEventFilter;
+    OwnershipTransferred(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): OwnershipTransferredEventFilter;
 
     "Reclaimed(bytes32,uint256)"(
       channelId?: BytesLike | null,
@@ -861,14 +1077,46 @@ export interface NitroAdjudicator extends BaseContract {
       overrides?: PayableOverrides & { from?: string }
     ): Promise<BigNumber>;
 
+    getL2ToL1(
+      l2ChannelId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     holdings(
       arg0: string,
       arg1: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    l2Tol1(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+
+    mirrorConcludeAndTransferAllAssets(
+      fixedPart: INitroTypes.FixedPartStruct,
+      candidate: INitroTypes.SignedVariablePartStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    mirrorTransferAllAssets(
+      mirrorChannelId: BytesLike,
+      outcome: ExitFormat.SingleAssetExitStruct[],
+      stateHash: BytesLike,
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
+
     reclaim(
       reclaimArgs: IMultiAssetHolder.ReclaimArgsStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    setL2ToL1(
+      l1ChannelId: BytesLike,
+      l2ChannelId: BytesLike,
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
@@ -894,6 +1142,11 @@ export interface NitroAdjudicator extends BaseContract {
       channelId: BytesLike,
       outcome: ExitFormat.SingleAssetExitStruct[],
       stateHash: BytesLike,
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    transferOwnership(
+      newOwner: string,
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
@@ -953,14 +1206,49 @@ export interface NitroAdjudicator extends BaseContract {
       overrides?: PayableOverrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
+    getL2ToL1(
+      l2ChannelId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     holdings(
       arg0: string,
       arg1: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    l2Tol1(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    mirrorConcludeAndTransferAllAssets(
+      fixedPart: INitroTypes.FixedPartStruct,
+      candidate: INitroTypes.SignedVariablePartStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    mirrorTransferAllAssets(
+      mirrorChannelId: BytesLike,
+      outcome: ExitFormat.SingleAssetExitStruct[],
+      stateHash: BytesLike,
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     reclaim(
       reclaimArgs: IMultiAssetHolder.ReclaimArgsStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    setL2ToL1(
+      l1ChannelId: BytesLike,
+      l2ChannelId: BytesLike,
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
@@ -989,6 +1277,11 @@ export interface NitroAdjudicator extends BaseContract {
       channelId: BytesLike,
       outcome: ExitFormat.SingleAssetExitStruct[],
       stateHash: BytesLike,
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    transferOwnership(
+      newOwner: string,
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
