@@ -10,6 +10,7 @@ import { GuaranteeMetadata } from './guarantee';
 
 export enum AllocationType {
   NormalAllocationType = 0,
+  WithdrawHelperAllocationType,
   GuaranteeAllocationType,
 }
 

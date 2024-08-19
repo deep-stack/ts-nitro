@@ -181,7 +181,7 @@ export class Guarantee {
     return new Allocation({
       destination: this._target,
       amount,
-      allocationType: 1,
+      allocationType: AllocationType.GuaranteeAllocationType,
       metadata: Buffer.concat([this.left.bytes(), this.right.bytes()]),
     });
   }
